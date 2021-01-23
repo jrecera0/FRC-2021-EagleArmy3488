@@ -4,9 +4,16 @@
 
 package frc.robot;
 
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+
+import edu.wpi.first.wpilibj.SpeedController;
+import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.SpeedControllerGroup;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -15,13 +22,48 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * project.
  */
 public class Robot extends TimedRobot {
+  public static final int FRONT_LEFT_CAN =2;
+  public static final int FRONT_RIGHT_CAN =4;
+  public static final int BACK_LEFT_CAN=1;
+  public static final int BACK_RIGHT_CAN=3;
 
+  private WPI_TalonFX leftMaster;
+  private WPI_TalonFX leftSlave;
+  private WPI_TalonFX rightMaster;
+  private WPI_TalonFX rightSlave;
+  
+  private SpeedControllerGroup leftMotors;
+  private SpeedControllerGroup rightMotors;
+  private DifferentialDrive driveTrain;
+
+
+  private XboxController xbox;
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
    */
   @Override
-  public void robotInit() {
+  public void robotInit() 
+  {
+    leftMaster = new WPI_TalonFX( Robot.FRONT_LEFT_CAN );
+    leftSlave = new WPI_TalonFX( Robot.BACK_LEFT_CAN );
+    rightMaster = new WPI_TalonFX( Robot.BACK_RIGHT_CAN );
+    rightSlave = new WPI_TalonFX( Robot.FRONT_RIGHT_CAN );
+
+    leftMotors = new SpeedControllerGroup( leftMaster, leftSlave );
+   
+    //leftMotors.setInverted( Robot.LEFT_MOTOR_INVERTED );
+
+    rightMotors = new SpeedControllerGroup( rightMaster, rightSlave );
+   
+    //rightMotors.setInverted( Robot.RIGHT_MOTOR_INVERTED );
+
+    driveTrain = new DifferentialDrive( leftMotors, rightMotors );
+
+    xbox = new XboxController(0);
+
+
+
   }
 
   /**
@@ -57,7 +99,30 @@ public class Robot extends TimedRobot {
 
   /** This function is called periodically during operator control. */
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() 
+  {
+    
+    driveTrain.arcadeDrive(xbox.getRawAxis(1), xbox.getRawAxis(0));
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  }
+
+  private int getRawAxis(int i) {
+    return 0;
+  }
 
   /** This function is called once when the robot is disabled. */
   @Override
@@ -73,5 +138,18 @@ public class Robot extends TimedRobot {
 
   /** This function is called periodically during test mode. */
   @Override
-  public void testPeriodic() {}
+  public void testPeriodic() 
+  {
+  }
+
+
+    public  double getLeftEncoderPosition() { return leftMaster.getSelectedSensorPosition(); }
+    public  double getRightEncoderPosition() { return rightMaster.getSelectedSensorPosition(); }
+    public  double getLeftEncoderVelocity() { return leftMaster.getSelectedSensorVelocity(); }
+    public  double getRightEncoderVelocity() { return rightMaster.getSelectedSensorVelocity(); }
+
+
+
+
+  
 }
