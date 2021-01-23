@@ -4,9 +4,16 @@
 
 package frc.robot;
 
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
+
+import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.XboxController;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -15,6 +22,42 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * project.
  */
 public class Robot extends TimedRobot {
+  // cans
+  public static final int FRONT_LEFT_CAN = 2;
+  public static final int BACK_LEFT_CAN = 1;
+  public static final int FRONT_RIGHT_CAN = 3;
+  public static final int BACK_RIGHT_CAN = 4;
+
+  //motor controllers
+  private WPI_TalonFX leftMaster;
+  private WPI_TalonFX leftSlave;
+  private WPI_TalonFX rightMaster;
+  private WPI_TalonFX rightSlave;
+
+  //speed controllers
+  private SpeedControllerGroup leftMotors;
+  private SpeedControllerGroup rightMotors;
+
+  //differential drive
+  private DifferentialDrive driveTrain;
+
+  // xbox stuff
+  private XboxController xbox;
+
+  //shooter stuff
+  public static final int SHOOTER_CAN = 8;
+  public static final double SHOOTER_SPEED_OUT = 0.75; //0.65
+  public static final double SHOOTER_SPEED_IN = 1.0;
+  
+  private WPI_TalonSRX shooter;
+
+  //intake
+  public static final int INTAKE_CAN = 12;
+
+  public static final double INTAKE_SPEED_IN = 0.6;
+  public static final double INTAKE_SPEED_OUT = 0.6;
+
+  private WPI_VictorSPX intake;
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -22,8 +65,24 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
+    leftMaster = new WPI_TalonFX( Robot.FRONT_LEFT_CAN );
+    leftSlave = new WPI_TalonFX( Robot.BACK_LEFT_CAN );
+    rightMaster = new WPI_TalonFX( Robot.BACK_RIGHT_CAN );
+    rightSlave = new WPI_TalonFX( Robot.FRONT_RIGHT_CAN );
+
+    leftMotors = new SpeedControllerGroup(leftMaster, leftSlave);
+    rightMotors = new SpeedControllerGroup( rightMaster, rightSlave );
+
+    driveTrain = new DifferentialDrive( leftMotors, rightMotors );
+
+    XboxController xbox = new XboxController(0);
+
+    shooter = new WPI_TalonSRX( Robot.SHOOTER_CAN );
+
+    intake = new WPI_VictorSPX( Robot.INTAKE_CAN );
   }
 
+  
   /**
    * This function is called every robot packet, no matter the mode. Use this for items like
    * diagnostics that you want ran during disabled, autonomous, teleoperated and test.
@@ -57,7 +116,15 @@ public class Robot extends TimedRobot {
 
   /** This function is called periodically during operator control. */
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+    driveTrain.arcadeDrive(xbox.getRawAxis(1), xbox.getRawAxis(4));
+
+    if (xbox.getAButton())
+      shooter.set(-0.65);
+
+    else if (!xbox.getAButton())
+      shooter.set(0);
+  }
 
   /** This function is called once when the robot is disabled. */
   @Override
