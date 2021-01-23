@@ -4,9 +4,24 @@
 
 package frc.robot;
 
+import com.ctre.phoenix.motorcontrol.VictorSPXSimCollection;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+import com.kauailabs.navx.frc.AHRS;
+
+import edu.wpi.first.hal.SimDouble;
+import edu.wpi.first.hal.simulation.SimDeviceDataJNI;
+import edu.wpi.first.wpilibj.AnalogGyro;
+import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
+import edu.wpi.first.wpilibj.simulation.EncoderSim;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.system.plant.DCMotor;
+import edu.wpi.first.wpilibj.util.Units;
+import edu.wpi.first.wpiutil.math.VecBuilder;
+import edu.wpi.first.wpilibj.SPI;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -15,13 +30,50 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * project.
  */
 public class Robot extends TimedRobot {
+  // CAN IDs
+  public static final int kFrontLeft = 2;
+  public static final int kFrontRight = 4;
+  public static final int kBackLeft = 1;
+  public static final int kBackRight = 3;
 
+  // Motor Controllers
+  private WPI_TalonFX leftMaster;
+  private WPI_TalonFX leftSlave;
+  private WPI_TalonFX rightMaster;
+  private WPI_TalonFX rightSlave;
+
+  // Simulated encoders (REWORK FOR FALCONS)
+  private Encoder leftEncoder = new Encoder(0, 1);
+  private Encoder rightEncoder = new Encoder(2, 3);
+  private EncoderSim leftEncoderSim = new EncoderSim(leftEncoder);
+  private EncoderSim rightEncoderSim = new EncoderSim(rightEncoder);
+  private VictorSPXSimCollection simMotorLeft = new VictorSPXSimCollection(leftMaster);
+  private VictorSPXSimCollection simMotorRight = new VictorSPXSimCollection(rightMaster);
+
+  // Sim Drive Train
+  private DifferentialDrivetrainSim driveSim;
+
+  // Simulated gyro
+  private AHRS robotGyro = new AHRS(SPI.Port.kMXP);
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
    */
   @Override
   public void robotInit() {
+    leftMaster = new WPI_TalonFX(Robot.kFrontLeft);
+    leftSlave.follow(leftMaster);
+    rightMaster = new WPI_TalonFX(Robot.kFrontRight);
+    rightSlave.follow(rightSlave);
+    driveSim = new DifferentialDrivetrainSim(
+      DCMotor.getNEO(2), // Not right
+      12.75, // Gear reduction
+      7.5, // Moment of inertia (No clue how to calculate)
+      68.0, // Mass in kg
+      Units.inchesToMeters(3.5), // Radius of wheel
+      Units.inchesToMeters(24.25), // Track width of robot
+      VecBuilder.fill(0.001, 0.001, 0.001, 0.1, 0.1, 0.005, 0.005) // Something about standard deviation
+    );
   }
 
   /**
@@ -74,4 +126,15 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during test mode. */
   @Override
   public void testPeriodic() {}
+
+  public static SimDouble getGyroSimVars() {
+    int dev = SimDeviceDataJNI.getSimDeviceHandle("navX-Sensor[0]");
+    SimDouble angle = new SimDouble(SimDeviceDataJNI.getSimValueHandle(dev, "Yaw"));
+    return angle;
+  }
+
+  @Override
+  public void simulationPeriodic() {
+
+  }
 }
