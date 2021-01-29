@@ -26,42 +26,30 @@ public class Robot extends TimedRobot {
    * initialization code.
    */
 
-   // These represent our regular encoder objects, which we would
-// create to use on a real robot.
-private Encoder m_leftEncoder = new Encoder(0, 1);
-private Encoder m_rightEncoder = new Encoder(2, 3);
+  // These represent our regular encoder objects, which we would
+  // create to use on a real robot.
+  private Encoder m_leftEncoder = new Encoder(0, 1);
+  private Encoder m_rightEncoder = new Encoder(2, 3);
 
-// These are our EncoderSim objects, which we will only use in
-// simulation. However, you do not need to comment out these
-// declarations when you are deploying code to the roboRIO.
-private EncoderSim m_leftEncoderSim = new EncoderSim(m_leftEncoder);
-private EncoderSim m_rightEncoderSim = new EncoderSim(m_rightEncoder);
+  // These are our EncoderSim objects, which we will only use in
+  // simulation. However, you do not need to comment out these
+  // declarations when you are deploying code to the roboRIO.
+  private EncoderSim m_leftEncoderSim = new EncoderSim(m_leftEncoder);
+  private EncoderSim m_rightEncoderSim = new EncoderSim(m_rightEncoder);
 
-// Create our gyro object like we would on a real robot.
-private AnalogGyro m_gyro = new AnalogGyro(1);
+  // Create our gyro object like we would on a real robot.
+  private AnalogGyro m_gyro = new AnalogGyro(1);
 
-// Create the simulated gyro object, used for setting the gyro
-// angle. Like EncoderSim, this does not need to be commented out
-// when deploying code to the roboRIO.
-private AnalogGyroSim m_gyroSim = new AnalogGyroSim(m_gyro);
+  // Create the simulated gyro object, used for setting the gyro
+  // angle. Like EncoderSim, this does not need to be commented out
+  // when deploying code to the roboRIO.
+  private AnalogGyroSim m_gyroSim = new AnalogGyroSim(m_gyro);
+
+  // Haha drive train go brrr
+  private DifferentialDrivetrainSim m_driveSim;
+  
   @Override
-  public void robotInit() {
-    // Create the simulation model of our drivetrain.
-DifferentialDrivetrainSim m_driveSim = new DifferentialDrivetrainSim(
-  DCMotor.getNEO(2),       // 2 NEO motors on each side of the drivetrain.
-  7.29,                    // 7.29:1 gearing reduction.
-  7.5,                     // MOI of 7.5 kg m^2 (from CAD model).
-  60.0,                    // The mass of the robot is 60 kg.
-  Units.inchesToMeters(3), // The robot uses 3" radius wheels.
-  0.7112,                  // The track width is 0.7112 meters.
-
-  // The standard deviations for measurement noise:
-  // x and y:          0.001 m
-  // heading:          0.001 rad
-  // l and r velocity: 0.1   m/s
-  // l and r position: 0.005 m
-  VecBuilder.fill(0.001, 0.001, 0.001, 0.1, 0.1, 0.005, 0.005));
-  }
+  public void robotInit() {}
 
   @Override
   public void robotPeriodic() {}
@@ -90,6 +78,25 @@ DifferentialDrivetrainSim m_driveSim = new DifferentialDrivetrainSim(
   @Override
   public void testPeriodic() {}
 
+  @Override
+  public void simulationInit() {
+    // Create the simulation model of our drivetrain.
+    m_driveSim = new DifferentialDrivetrainSim(
+      DCMotor.getNEO(2),       // 2 NEO motors on each side of the drivetrain.
+      7.29,                    // 7.29:1 gearing reduction.
+      7.5,                     // MOI of 7.5 kg m^2 (from CAD model).
+      60.0,                    // The mass of the robot is 60 kg.
+      Units.inchesToMeters(3), // The robot uses 3" radius wheels.
+      0.7112,                  // The track width is 0.7112 meters.
+      
+      // The standard deviations for measurement noise:
+      // x and y:          0.001 m
+      // heading:          0.001 rad
+      // l and r velocity: 0.1   m/s
+      // l and r position: 0.005 m
+      VecBuilder.fill(0.001, 0.001, 0.001, 0.1, 0.1, 0.005, 0.005)
+    );
+  }
   @Override
   public void simulationPeriodic() {
     // Set the inputs to the system. Note that we need to convert
