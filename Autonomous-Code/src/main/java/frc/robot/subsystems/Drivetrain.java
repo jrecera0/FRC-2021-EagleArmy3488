@@ -30,9 +30,9 @@ public class Drivetrain extends SubsystemBase {
   public static final int CAN_BACK_RIGHT = 3;
 
   // track width in inches
-  public static final double TRACK_WIDTH = 24.25;
+  public static final double TRACK_WIDTH = 24.3125;
   // wheel radius in inches
-  public static final double WHEEL_RADIUS = 3.5;
+  public static final double WHEEL_RADIUS = 3.625;
 
   public static final double kS = 0.226;
   public static final double kV = 1.95;
@@ -43,7 +43,7 @@ public class Drivetrain extends SubsystemBase {
   public static final double kRamseteB = 2;
   public static final double kRamseteZeta = 0.7;
 
-  private static final double K_GEAR_RATIO = 10.75;
+  private static final double K_GEAR_RATIO = 10.71;
   //private static final double K_GEAR_RATIO = 12.75; // Apparently this is the corrected number, added 1/12/21
   private static final int K_SENSOR_UNITS_PER_ROTATION = 2048;
   private static final int K_WHEEL_UNITS_PER_REVOLUTION = 22016;
@@ -101,6 +101,10 @@ public class Drivetrain extends SubsystemBase {
     rightPIDController = new PIDController( Drivetrain.kP, 0, Drivetrain.kD );
   }
 
+  public void arcadeDrive(double xSpeed, double zRotation) {
+    driveTrain.arcadeDrive(xSpeed, zRotation);
+  }
+
   @Override
   public void periodic()
   {
@@ -129,7 +133,7 @@ public class Drivetrain extends SubsystemBase {
   {
     System.out.println( "WARNING! Position: " + getLeftWheelDistance() + " " + getRightWheelDistance() );
     leftMotors.setVoltage( -leftVolts );
-    rightMotors.setVoltage( rightVolts );
+    rightMotors.setVoltage( rightVolts * 0.988 );
     driveTrain.feed();
   }
 
@@ -174,8 +178,8 @@ public class Drivetrain extends SubsystemBase {
   }
   
   public void resetGyro() { gyro.reset(); }
-  public double getGyroAngle() { return gyro.getAngle(); }
-  public Rotation2d getHeading() { return Rotation2d.fromDegrees( gyro.getAngle() ); }
+  public double getGyroAngle() { return -gyro.getAngle(); }
+  public Rotation2d getHeading() { return Rotation2d.fromDegrees( -gyro.getAngle() ); }
       
   public void printEncoders()
   {

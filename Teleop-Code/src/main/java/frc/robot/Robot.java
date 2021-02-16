@@ -117,13 +117,8 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    driveTrain.arcadeDrive(xbox.getRawAxis(1), xbox.getRawAxis(4));
-
-    if (xbox.getAButton())
-      shooter.set(-0.65);
-
-    else if (!xbox.getAButton())
-      shooter.set(0);
+    leftMotors.set(0.5);
+    rightMotors.set(0.5);
   }
 
   /** This function is called once when the robot is disabled. */

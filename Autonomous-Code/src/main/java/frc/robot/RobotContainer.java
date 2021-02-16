@@ -4,7 +4,6 @@
 
 package frc.robot;
 
-import java.sql.Driver;
 import java.util.Arrays;
 import java.util.List;
 
@@ -52,13 +51,13 @@ public class RobotContainer {
     config.setKinematics( driveTrainVar.getKinematics() );
 
     Trajectory tempTrajectory = TrajectoryGenerator.generateTrajectory(
-        Arrays.asList( new Pose2d(), new Pose2d( 5, 0, new Rotation2d() ) ),
+        Arrays.asList( new Pose2d(), new Pose2d( Units.feetToMeters(30), 0, new Rotation2d(0) ) ),
 
         config
     ); // WRONG TRAJECTORY; CURRENTLY USED
     
     Trajectory forwardTrajectory = TrajectoryGenerator.generateTrajectory(new Pose2d(0, 0, new Rotation2d(0)),
-        List.of(), new Pose2d(Units.feetToMeters(10), 0, new Rotation2d()),
+        List.of(), new Pose2d(Units.feetToMeters(15), 0, new Rotation2d()),
         config
     );
 
@@ -71,21 +70,25 @@ public class RobotContainer {
         ),
         new Pose2d(0, 0, new Rotation2d()), config);
     
-    return tempTrajectory;
-
-    /*Trajectory trajectory = TrajectoryGenerator.generateTrajectory(
+    Trajectory trajectory = TrajectoryGenerator.generateTrajectory(
     // Start at the origin facing the +X direction
     new Pose2d(0, 0, new Rotation2d(0)),
     // Pass through these two interior waypoints, making an 's' curve path
     List.of(
-        new Translation2d(1, 1),
-        new Translation2d(2, -1)
+        new Translation2d(Units.feetToMeters(5), Units.feetToMeters(2.5)),
+        new Translation2d(Units.feetToMeters(10), Units.feetToMeters(5)),
+        new Translation2d(Units.feetToMeters(12.5), Units.feetToMeters(-2.5)),
+        new Translation2d(Units.feetToMeters(12.5), Units.feetToMeters(7.5)),
+        new Translation2d(Units.feetToMeters(15), Units.feetToMeters(0)),
+        new Translation2d(Units.feetToMeters(20), Units.feetToMeters(2.5))
     ),
     // End 3 meters straight ahead of where we started, facing forward
-    new Pose2d(3, 0, new Rotation2d(0)),
+    new Pose2d(Units.feetToMeters(30), Units.feetToMeters(0), new Rotation2d(0)),
     // Pass config
     config
-    );*/
+    );
+    //return tempTrajectory;
+    return trajectory;
   }
 
   public Command getAutonomousCommand()
