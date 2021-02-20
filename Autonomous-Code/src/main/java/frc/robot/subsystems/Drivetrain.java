@@ -102,7 +102,7 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public void arcadeDrive(double xSpeed, double zRotation) {
-    driveTrain.arcadeDrive(xSpeed, zRotation);
+    driveTrain.arcadeDrive(-xSpeed, zRotation);
   }
 
   @Override
@@ -132,8 +132,8 @@ public class Drivetrain extends SubsystemBase {
   public void tankDriveVolts( double leftVolts, double rightVolts )
   {
     System.out.println( "WARNING! Position: " + getLeftWheelDistance() + " " + getRightWheelDistance() );
-    leftMotors.setVoltage( -leftVolts );
-    rightMotors.setVoltage( rightVolts * 0.988 );
+    leftMotors.setVoltage( leftVolts );
+    rightMotors.setVoltage( -rightVolts); // Drift?: do * 0.988
     driveTrain.feed();
   }
 
@@ -143,10 +143,10 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public void resetEncoders() { frontLeftMotor.setSelectedSensorPosition( 0 ); frontRightMotor.setSelectedSensorPosition( 0 ); }
-  public double getLeftEncoderPosition() { return -frontLeftMotor.getSelectedSensorPosition(); }
-  public double getRightEncoderPosition() { return frontRightMotor.getSelectedSensorPosition(); }
-  public double getLeftEncoderVelocity() { return -frontLeftMotor.getSelectedSensorVelocity(); }
-  public double getRightEncoderVelocity() { return frontRightMotor.getSelectedSensorVelocity(); }
+  public double getLeftEncoderPosition() { return frontLeftMotor.getSelectedSensorPosition(); }
+  public double getRightEncoderPosition() { return -frontRightMotor.getSelectedSensorPosition(); }
+  public double getLeftEncoderVelocity() { return frontLeftMotor.getSelectedSensorVelocity(); }
+  public double getRightEncoderVelocity() { return -frontRightMotor.getSelectedSensorVelocity(); }
   
   public DifferentialDriveWheelSpeeds getSpeeds() 
   {
@@ -178,8 +178,8 @@ public class Drivetrain extends SubsystemBase {
   }
   
   public void resetGyro() { gyro.reset(); }
-  public double getGyroAngle() { return -gyro.getAngle(); }
-  public Rotation2d getHeading() { return Rotation2d.fromDegrees( -gyro.getAngle() ); }
+  public double getGyroAngle() { return gyro.getAngle(); }
+  public Rotation2d getHeading() { return Rotation2d.fromDegrees( gyro.getAngle() ); }
       
   public void printEncoders()
   {
