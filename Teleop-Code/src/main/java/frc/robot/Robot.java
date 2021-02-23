@@ -23,8 +23,8 @@ import edu.wpi.first.wpilibj.XboxController;
  */
 public class Robot extends TimedRobot {
   // cans
-  public static final int FRONT_LEFT_CAN = 2;
-  public static final int BACK_LEFT_CAN = 1;
+  public static final int FRONT_LEFT_CAN = 1;
+  public static final int BACK_LEFT_CAN = 2;
   public static final int FRONT_RIGHT_CAN = 3;
   public static final int BACK_RIGHT_CAN = 4;
 
@@ -75,7 +75,7 @@ public class Robot extends TimedRobot {
 
     driveTrain = new DifferentialDrive( leftMotors, rightMotors );
 
-    XboxController xbox = new XboxController(0);
+    xbox = new XboxController(0);
 
     shooter = new WPI_TalonSRX( Robot.SHOOTER_CAN );
 
@@ -117,8 +117,7 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    leftMotors.set(0.5);
-    rightMotors.set(0.5);
+    driveTrain.arcadeDrive(-xbox.getRawAxis(1), xbox.getRawAxis(0));
   }
 
   /** This function is called once when the robot is disabled. */
