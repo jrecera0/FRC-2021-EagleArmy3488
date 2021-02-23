@@ -4,6 +4,9 @@
 
 package frc.robot;
 
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
+
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -21,6 +24,7 @@ public class Robot extends TimedRobot {
   private RobotContainer robotContainer;
   private Drivetrain driveTrain;
   private XboxController xbox;
+  private WPI_VictorSPX intake, conveyor;
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -33,6 +37,8 @@ public class Robot extends TimedRobot {
     robotContainer = new RobotContainer();
     driveTrain = new Drivetrain();
     xbox = new XboxController(0);
+    conveyor = new WPI_VictorSPX(7);
+    intake = new WPI_VictorSPX(12);
   }
 
   /**
@@ -62,7 +68,6 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     autonomousCommand = robotContainer.getAutonomousCommand();
-
     // schedule the autonomous command (example)
     if (autonomousCommand != null) {
       autonomousCommand.schedule();
@@ -73,8 +78,11 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousPeriodic() 
   {
+    intake.set(0.6);
+    conveyor.set(1.0);
     if (autonomousCommand != null && robotContainer.rCommand.isFinished()) {
-
+      intake.set(0.0);
+      conveyor.set(0.0);
     }
   }
 
@@ -93,6 +101,13 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     driveTrain.arcadeDrive(xbox.getRawAxis(1), xbox.getRawAxis(4));
+    if(xbox.getAButton()) {
+      intake.set(0.6);
+      conveyor.set(1.0);
+    } else {
+      intake.set(0.0);
+      conveyor.set(0.0);
+    }
   }
 
   @Override

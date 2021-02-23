@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import static frc.robot.Constants.FieldPositioning.*;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -47,50 +49,56 @@ public class RobotContainer {
 
   private Trajectory createTrajectory()
   {
-    TrajectoryConfig config = new TrajectoryConfig( Units.feetToMeters( 6 ), Units.feetToMeters( 4 ) );
-    config.setKinematics( driveTrainVar.getKinematics() );
+    // TrajectoryConfig config = new TrajectoryConfig( Units.feetToMeters( 6 ), Units.feetToMeters( 4 ) );
+    // config.setKinematics( driveTrainVar.getKinematics() );
 
-    Trajectory tempTrajectory = TrajectoryGenerator.generateTrajectory(
-        Arrays.asList( new Pose2d(), new Pose2d( Units.feetToMeters(30), 0, new Rotation2d(0) ) ),
+    // Trajectory tempTrajectory = TrajectoryGenerator.generateTrajectory(
+    //     Arrays.asList( new Pose2d(), new Pose2d( Units.feetToMeters(30), 0, new Rotation2d(0) ) ),
 
-        config
-    ); // WRONG TRAJECTORY; CURRENTLY USED
+    //     config
+    // ); // WRONG TRAJECTORY; CURRENTLY USED
     
-    Trajectory forwardTrajectory = TrajectoryGenerator.generateTrajectory(new Pose2d(0, 0, new Rotation2d(0)),
-        List.of(), new Pose2d(Units.feetToMeters(15), 0, new Rotation2d()),
-        config
-    );
+    // Trajectory forwardTrajectory = TrajectoryGenerator.generateTrajectory(new Pose2d(0, 0, new Rotation2d(0)),
+    //     List.of(), new Pose2d(Units.feetToMeters(15), 0, new Rotation2d()),
+    //     config
+    // );
 
-    Trajectory alternateTrajectory = TrajectoryGenerator.generateTrajectory(
-        new Pose2d(0, 0, new Rotation2d(0)),
-        List.of(
-            new Translation2d(Units.feetToMeters(5), 0), // 5 Feet forward
-            new Translation2d(Units.feetToMeters(10), Units.feetToMeters(5)), // Turn left and move 5 feet
-            new Translation2d(Units.feetToMeters(15), Units.feetToMeters(-5))
-        ),
-        new Pose2d(Units.feetToMeters(20), 0, new Rotation2d(0)),
-        config);
+    // Trajectory alternateTrajectory = TrajectoryGenerator.generateTrajectory(
+    //     new Pose2d(0, 0, new Rotation2d(0)),
+    //     List.of(
+    //         new Translation2d(Units.feetToMeters(5), 0), // 5 Feet forward
+    //         new Translation2d(Units.feetToMeters(10), Units.feetToMeters(5)), // Turn left and move 5 feet
+    //         new Translation2d(Units.feetToMeters(15), Units.feetToMeters(-5))
+    //     ),
+    //     new Pose2d(Units.feetToMeters(20), 0, new Rotation2d(0)),
+    //     config);
     
-    Trajectory trajectory = TrajectoryGenerator.generateTrajectory(
-    // Start at the origin facing the +X direction
-    new Pose2d(0, 0, new Rotation2d(0)),
-    // Pass through these two interior waypoints, making an 's' curve path
-    List.of(
-        new Translation2d(Units.feetToMeters(5), Units.feetToMeters(-2.5)),
-        new Translation2d(Units.feetToMeters(10), Units.feetToMeters(-5)),
-        new Translation2d(Units.feetToMeters(12.5), Units.feetToMeters(2.5)),
-        new Translation2d(Units.feetToMeters(12.5), Units.feetToMeters(-7.5)),
-        new Translation2d(Units.feetToMeters(15), Units.feetToMeters(0)),
-        new Translation2d(Units.feetToMeters(20), Units.feetToMeters(-2.5))
-    ),
-    // End 3 meters straight ahead of where we started, facing forward
-    new Pose2d(Units.feetToMeters(30), Units.feetToMeters(0), new Rotation2d(0)),
-    // Pass config
-    config
-    );
+    // Trajectory trajectory = TrajectoryGenerator.generateTrajectory(
+    // // Start at the origin facing the +X direction
+    // new Pose2d(0, 0, new Rotation2d(0)),
+    // // Pass through these two interior waypoints, making an 's' curve path
+    // List.of(
+    //     new Translation2d(Units.feetToMeters(5), Units.feetToMeters(-2.5)),
+    //     new Translation2d(Units.feetToMeters(10), Units.feetToMeters(-5)),
+    //     new Translation2d(Units.feetToMeters(12.5), Units.feetToMeters(2.5)),
+    //     new Translation2d(Units.feetToMeters(12.5), Units.feetToMeters(-7.5)),
+    //     new Translation2d(Units.feetToMeters(15), Units.feetToMeters(0)),
+    //     new Translation2d(Units.feetToMeters(20), Units.feetToMeters(-2.5))
+    // ),
+    // // End 3 meters straight ahead of where we started, facing forward
+    // new Pose2d(Units.feetToMeters(30), Units.feetToMeters(0), new Rotation2d(0)),
+    // // Pass config
+    // config
+    // );
+    Trajectory trajectory;
+    
     //return tempTrajectory;
     return trajectory;
     //return alternateTrajectory;
+  }
+
+  private boolean isWithinThresh(double actual, double obtained, double thresh) {
+    if(   )
   }
 
   public Command getAutonomousCommand()
