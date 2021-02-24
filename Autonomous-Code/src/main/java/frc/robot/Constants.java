@@ -12,4 +12,54 @@ package frc.robot;
  * <p>It is advised to statically import this class (or one of its inner classes) wherever the
  * constants are needed, to reduce verbosity.
  */
-public final class Constants {}
+public final class Constants {
+    public class DriveConstants {
+        // CANBus
+        public static final int kFrontLeftMotorID = 2;
+        public static final int kFrontRightMotorID = 3;
+        public static final int kBackLeftMotorID = 1;
+        public static final int kBackRightMotorID = 4;
+
+        // Directional Logic
+        //public static final boolean kLeftMotorsInverted = true;
+        //public static final boolean kRightMotorsInverted = true;
+        public static final boolean kIsLeftVoltageInverted = false;
+        public static final boolean kIsRightVoltageInverted = true;
+        public static final boolean kLeftEncoderReversed = true;
+        public static final boolean kRightEncoderReversed = false;
+        public static final boolean kGyroReversed = false;
+
+        // Physical Robot Properties
+        public static final double kTrackWidth = 24.25;
+        public static final double kWheelRadius = 3.625;
+        public static final double kGearRatio = 10.75;
+        public static final double kEncoderResolution = 2048;
+
+        // Characterization Constants
+        public static final double kP = 0.0109;
+        public static final double kI = 0.0;
+        public static final double kD = 0.0;
+        public static final double kS = 0.226;
+        public static final double kV = 1.95;
+        public static final double kA = 0.299;
+        public static final double kRamseteB = 2;
+        public static final double kRamseteZeta = 0.7;
+
+        // Logging
+        public static final boolean kLoggingEnabled = true;
+    }
+
+    public class FieldPositioning {
+        // Path A RED
+        public static final double aRed_tx = 28;
+        public static final double aRed_ty = -19;
+        public static final double aRed_ta_Upper = 1.4;
+        
+        // Path A BLUE
+
+        // Path B RED
+
+        // Path B BLUE
+         
+    }
+}
