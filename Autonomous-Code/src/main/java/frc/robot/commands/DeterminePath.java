@@ -35,6 +35,7 @@ public class DeterminePath extends CommandBase {
   // Plan here is to figure out what path we're taking
   @Override
   public void initialize() {
+    // NEED TO UPDATE FOR REAL LOGIC AND REAL TRAJECTORIES
     if(isPathARed()) {
       trajectory = new Trajectory();
     }
