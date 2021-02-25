@@ -73,23 +73,23 @@ public class RobotContainer {
     //     new Pose2d(Units.feetToMeters(20), 0, new Rotation2d(0)),
     //     config);
     
-    // Trajectory trajectory = TrajectoryGenerator.generateTrajectory(
-    // // Start at the origin facing the +X direction
-    // new Pose2d(0, 0, new Rotation2d(0)),
-    // // Pass through these two interior waypoints, making an 's' curve path
-    // List.of(
-    //     new Translation2d(Units.feetToMeters(5), Units.feetToMeters(-2.5)),
-    //     new Translation2d(Units.feetToMeters(10), Units.feetToMeters(-5)),
-    //     new Translation2d(Units.feetToMeters(12.5), Units.feetToMeters(2.5)),
-    //     new Translation2d(Units.feetToMeters(12.5), Units.feetToMeters(-7.5)),
-    //     new Translation2d(Units.feetToMeters(15), Units.feetToMeters(0)),
-    //     new Translation2d(Units.feetToMeters(20), Units.feetToMeters(-2.5))
-    // ),
-    // // End 3 meters straight ahead of where we started, facing forward
-    // new Pose2d(Units.feetToMeters(30), Units.feetToMeters(0), new Rotation2d(0)),
-    // // Pass config
-    // config
-    // );
+    Trajectory trajectory = TrajectoryGenerator.generateTrajectory(
+    // Start at the origin facing the +X direction
+    new Pose2d(0, 0, new Rotation2d(0)),
+    // Pass through these two interior waypoints, making an 's' curve path
+    List.of(
+        new Translation2d(Units.feetToMeters(5), Units.feetToMeters(-2.5)),
+        new Translation2d(Units.feetToMeters(10), Units.feetToMeters(-5)),
+        new Translation2d(Units.feetToMeters(12.5), Units.feetToMeters(2.5)),
+        new Translation2d(Units.feetToMeters(12.5), Units.feetToMeters(-7.5)),
+        new Translation2d(Units.feetToMeters(15), Units.feetToMeters(0)),
+        new Translation2d(Units.feetToMeters(20), Units.feetToMeters(-2.5))
+    ),
+    // End 3 meters straight ahead of where we started, facing forward
+    new Pose2d(Units.feetToMeters(30), Units.feetToMeters(0), new Rotation2d(0)),
+    // Pass config
+    config
+    );
     Trajectory trajectory;
     
     //return tempTrajectory;
