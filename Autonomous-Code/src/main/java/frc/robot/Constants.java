@@ -53,13 +53,15 @@ public final class Constants {
         // Path A RED
         public static final double aRed_tx = 28;
         public static final double aRed_ty = -19;
-        public static final double aRed_ta_Upper = 1.4;
-        
         // Path A BLUE
-
+        public static final double aBlue_tx = -20.33;
+        public static final double aBlue_ty = -12.09;
         // Path B RED
-
-        // Path B BLUE
+        public static final double bRed_tx = 1.82;
+        public static final double bRed_ty = -22.87;
+        // Path B Blue
+        public static final double bBlue_tx = 3.78;
+        public static final double bBlue_ty = -14.01;
          
     }
 }

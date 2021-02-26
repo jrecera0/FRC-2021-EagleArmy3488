@@ -5,11 +5,19 @@
 package frc.robot.commands;
 
 import static frc.robot.Constants.FieldPositioning.*;
+
+import java.util.List;
+
 import static frc.robot.Constants.DriveConstants.*;
 
 import edu.wpi.first.wpilibj.controller.RamseteController;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
+import edu.wpi.first.wpilibj.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.geometry.Translation2d;
 import edu.wpi.first.wpilibj.trajectory.Trajectory;
+import edu.wpi.first.wpilibj.trajectory.TrajectoryConfig;
+import edu.wpi.first.wpilibj.trajectory.TrajectoryGenerator;
+import edu.wpi.first.wpilibj.util.Units;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import frc.robot.subsystems.DriveTrain;
@@ -23,11 +31,13 @@ public class DeterminePath extends CommandBase {
   private int tx;
   private int ty;
   private int ta;
+  private TrajectoryConfig config; 
 
   public DeterminePath(DriveTrain drive, Limelight fieldVision) {
     // Use addRequirements() here to declare subsystem dependencies.
     driveTrain = drive;
     limelight = fieldVision;
+    config = new TrajectoryConfig(Units.feetToMeters(6), Units.feetToMeters(4));
     addRequirements(driveTrain, limelight);
   }
 
@@ -36,7 +46,28 @@ public class DeterminePath extends CommandBase {
   @Override
   public void initialize() {
     // NEED TO UPDATE FOR REAL LOGIC AND REAL TRAJECTORIES
-    if(isPathARed()) {
+    if(isPathARed() == true ) {
+      trajectory =  TrajectoryGenerator.generateTrajectory(
+        new Pose2d(0, 0, new Rotation2d(0)),
+
+        List.of(
+          new Translation2d(Units.feetToMeters(5), Units.feetToMeters(-2.5)),
+          new Translation2d(Units.feetToMeters(10), Units.feetToMeters(-5)),
+          new Translation2d(Units.feetToMeters(12.5), Units.feetToMeters(-7.5)),
+          new Translation2d(Units.feetToMeters(25), Units.feetToMeters(0))
+        ),
+        new Pose2d(Units.feetToMeters(30), Units.feetToMeters(0), new Rotation2d(0)),
+        // Pass config
+        config
+      );
+    }
+    if(isPathBRed() == true ) {
+      trajectory = new Trajectory();
+    }
+    if(isPathABlue() == true ) {
+      trajectory = new Trajectory();
+    }
+    if(isPathBBlue() == true ) {
       trajectory = new Trajectory();
     }
     driveTrain.resetOdometry(new Pose2d());
@@ -84,6 +115,45 @@ public class DeterminePath extends CommandBase {
 
     boolean correct_tx = isWithinThresh(aRed_tx, current_tx, .5);
     boolean correct_ty = isWithinThresh(aRed_ty, current_ty, .5);
+    
+    if (correct_tx == true && correct_ty == true)
+      goForPath = true;
+
+    return goForPath;
+  }
+  private boolean isPathBRed() {
+    boolean goForPath = false;
+    double current_tx = limelight.getTX();
+    double current_ty = limelight.getTY();
+
+    boolean correct_tx = isWithinThresh(bRed_tx, current_tx, .5);
+    boolean correct_ty = isWithinThresh(bRed_ty, current_ty, .5);
+    
+    if (correct_tx == true && correct_ty == true)
+      goForPath = true;
+
+    return goForPath;
+  }
+  private boolean isPathABlue() {
+    boolean goForPath = false;
+    double current_tx = limelight.getTX();
+    double current_ty = limelight.getTY();
+
+    boolean correct_tx = isWithinThresh(aBlue_tx, current_tx, .5);
+    boolean correct_ty = isWithinThresh(aBlue_ty, current_ty, .5);
+    
+    if (correct_tx == true && correct_ty == true)
+      goForPath = true;
+
+    return goForPath;
+  }
+  private boolean isPathBBlue() {
+    boolean goForPath = false;
+    double current_tx = limelight.getTX();
+    double current_ty = limelight.getTY();
+
+    boolean correct_tx = isWithinThresh(bBlue_tx, current_tx, .5);
+    boolean correct_ty = isWithinThresh(bBlue_ty, current_ty, .5);
     
     if (correct_tx == true && correct_ty == true)
       goForPath = true;
