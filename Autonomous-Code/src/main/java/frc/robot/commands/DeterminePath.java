@@ -62,13 +62,49 @@ public class DeterminePath extends CommandBase {
       );
     }
     if(isPathBRed() == true ) {
-      trajectory = new Trajectory();
+      trajectory =  TrajectoryGenerator.generateTrajectory(
+        new Pose2d(0, 0, new Rotation2d(0)),
+
+        List.of(
+          new Translation2d(Units.feetToMeters(5), Units.feetToMeters(0)),
+          new Translation2d(Units.feetToMeters(10), Units.feetToMeters(-5)),
+          new Translation2d(Units.feetToMeters(15), Units.feetToMeters(0)),
+          new Translation2d(Units.feetToMeters(25), Units.feetToMeters(0))
+        ),
+        new Pose2d(Units.feetToMeters(30), Units.feetToMeters(0), new Rotation2d(0)),
+        // Pass config
+        config
+      );
     }
     if(isPathABlue() == true ) {
-      trajectory = new Trajectory();
+      trajectory =  TrajectoryGenerator.generateTrajectory(
+        new Pose2d(0, 0, new Rotation2d(0)),
+
+        List.of(
+          new Translation2d(Units.feetToMeters(12.5), Units.feetToMeters(2.5)),
+          new Translation2d(Units.feetToMeters(15), Units.feetToMeters(0)),
+          new Translation2d(Units.feetToMeters(20), Units.feetToMeters(-2.5)),
+          new Translation2d(Units.feetToMeters(25), Units.feetToMeters(0))
+        ),
+        new Pose2d(Units.feetToMeters(30), Units.feetToMeters(0), new Rotation2d(0)),
+        // Pass config
+        config
+      );
     }
     if(isPathBBlue() == true ) {
-      trajectory = new Trajectory();
+      trajectory =  TrajectoryGenerator.generateTrajectory(
+        new Pose2d(0, 0, new Rotation2d(0)),
+
+        List.of(
+          new Translation2d(Units.feetToMeters(12.5), Units.feetToMeters(0)),
+          new Translation2d(Units.feetToMeters(17.5), Units.feetToMeters(5)),
+          new Translation2d(Units.feetToMeters(22.5), Units.feetToMeters(0)),
+          new Translation2d(Units.feetToMeters(25), Units.feetToMeters(0))
+        ),
+        new Pose2d(Units.feetToMeters(30), Units.feetToMeters(0), new Rotation2d(0)),
+        // Pass config
+        config
+      );
     }
     driveTrain.resetOdometry(new Pose2d());
 
