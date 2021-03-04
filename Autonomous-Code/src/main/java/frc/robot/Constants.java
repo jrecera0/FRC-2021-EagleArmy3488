@@ -46,7 +46,7 @@ public final class Constants {
         public static final double kRamseteZeta = 0.7;
 
         // Logging
-        public static final boolean kLoggingEnabled = true;
+        public static final boolean kLoggingEnabled = false;
     }
 
     public class FieldPositioning {

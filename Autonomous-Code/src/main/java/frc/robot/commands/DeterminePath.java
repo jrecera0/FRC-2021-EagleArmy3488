@@ -28,6 +28,7 @@ public class DeterminePath extends CommandBase {
   private Limelight limelight;
   private DriveTrain driveTrain;
   private Trajectory trajectory;
+  private RamseteCommand command;
   private int tx;
   private int ty;
   private int ta;
@@ -38,6 +39,7 @@ public class DeterminePath extends CommandBase {
     driveTrain = drive;
     limelight = fieldVision;
     config = new TrajectoryConfig(Units.feetToMeters(6), Units.feetToMeters(4));
+    config.setKinematics(driveTrain.getKinematics());
     addRequirements(driveTrain, limelight);
   }
 
@@ -45,8 +47,9 @@ public class DeterminePath extends CommandBase {
   // Plan here is to figure out what path we're taking
   @Override
   public void initialize() {
+    System.out.println("WARNING! TEST");
     // NEED TO UPDATE FOR REAL LOGIC AND REAL TRAJECTORIES
-    if(isPathARed() == true ) {
+    if(isPathARed() == true) {
       trajectory =  TrajectoryGenerator.generateTrajectory(
         new Pose2d(0, 0, new Rotation2d(0)),
 
@@ -106,9 +109,17 @@ public class DeterminePath extends CommandBase {
         config
       );
     }
+
+    trajectory = TrajectoryGenerator.generateTrajectory(
+      new Pose2d(0, 0, new Rotation2d(0)),
+      List.of(),
+      new Pose2d(0, 1, new Rotation2d(0)),
+      config
+    );
+
     driveTrain.resetOdometry(new Pose2d());
 
-    RamseteCommand command = new RamseteCommand(
+    command = new RamseteCommand(
       trajectory,
       driveTrain::getPose,
       new RamseteController(kRamseteB, kRamseteZeta),
@@ -134,7 +145,7 @@ public class DeterminePath extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return command.isFinished();
   }
   
   private boolean isWithinThresh(double actual, double obtained, double thresh) {
