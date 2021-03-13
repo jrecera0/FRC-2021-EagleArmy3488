@@ -32,7 +32,7 @@ public final class Constants {
         // Physical Robot Properties
         public static final double kTrackWidth = 24.25;
         public static final double kWheelRadius = 3.625;
-        public static final double kGearRatio = 10.75;
+        public static final double kGearRatio = 10.71;
         public static final double kEncoderResolution = 2048;
 
         // Characterization Constants
@@ -50,18 +50,35 @@ public final class Constants {
     }
 
     public class FieldPositioning {
+        // Other
+        public static final double kInterval = 0.75;
         // Path A RED
         public static final double aRed_tx = 28;
         public static final double aRed_ty = -19;
         // Path A BLUE
-        public static final double aBlue_tx = -20.33;
-        public static final double aBlue_ty = -12.09;
+        public static final double aBlue_tx = 13.45;
+        public static final double aBlue_ty = -14.05;
         // Path B RED
         public static final double bRed_tx = 1.82;
         public static final double bRed_ty = -22.87;
         // Path B Blue
         public static final double bBlue_tx = 3.78;
         public static final double bBlue_ty = -14.01;
-         
+    }
+
+    public class BlinkinConstants {
+        public static final int kBlinkinPort = 0;
+        public static final double kRed = 0.61;
+        public static final double kOrange = 0.65;
+        public static final double kYellow = 0.69;
+        public static final double kGreen = 0.77;
+        public static final double kBlue = 0.79;
+        public static final double kViolet = 0.91;
+        public static final double kWhite = 0.93;
+        public static final double kBlack = 0.99;
+    }
+
+    public class TrajectoryPathnames {
+        
     }
 }
