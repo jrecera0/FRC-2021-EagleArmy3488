@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj.util.Units;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
+import frc.robot.subsystems.Blinkin;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Limelight;
 
@@ -28,31 +29,29 @@ public class DeterminePath extends CommandBase {
   private Limelight limelight;
   private DriveTrain driveTrain;
   private Trajectory trajectory;
+  private Blinkin ledController;
   private RamseteCommand command;
-  private int tx;
-  private int ty;
-  private int ta;
   private TrajectoryConfig config; 
 
-  public DeterminePath(DriveTrain drive, Limelight fieldVision) {
+  public DeterminePath(DriveTrain drive, Limelight fieldVision, Blinkin leds) {
     // Use addRequirements() here to declare subsystem dependencies.
     driveTrain = drive;
     limelight = fieldVision;
+    ledController = leds;
     config = new TrajectoryConfig(Units.feetToMeters(6), Units.feetToMeters(4));
     config.setKinematics(driveTrain.getKinematics());
-    addRequirements(driveTrain, limelight);
+    addRequirements(driveTrain, limelight); // Excluding the LEDs here since they're not a HUGE requirement
   }
 
   // Called when the command is initially scheduled.
   // Plan here is to figure out what path we're taking
   @Override
   public void initialize() {
-    System.out.println("WARNING! TEST");
     // NEED TO UPDATE FOR REAL LOGIC AND REAL TRAJECTORIES
     if(isPathARed() == true) {
+      ledController.setRed();
       trajectory =  TrajectoryGenerator.generateTrajectory(
         new Pose2d(0, 0, new Rotation2d(0)),
-
         List.of(
           new Translation2d(Units.feetToMeters(5), Units.feetToMeters(-2.5)),
           new Translation2d(Units.feetToMeters(10), Units.feetToMeters(-5)),
@@ -65,9 +64,9 @@ public class DeterminePath extends CommandBase {
       );
     }
     if(isPathBRed() == true ) {
+      ledController.setOrange();
       trajectory =  TrajectoryGenerator.generateTrajectory(
         new Pose2d(0, 0, new Rotation2d(0)),
-
         List.of(
           new Translation2d(Units.feetToMeters(5), Units.feetToMeters(0)),
           new Translation2d(Units.feetToMeters(10), Units.feetToMeters(-5)),
@@ -80,9 +79,9 @@ public class DeterminePath extends CommandBase {
       );
     }
     if(isPathABlue() == true ) {
+      ledController.setBlue();
       trajectory =  TrajectoryGenerator.generateTrajectory(
         new Pose2d(0, 0, new Rotation2d(0)),
-
         List.of(
           new Translation2d(Units.feetToMeters(12.5), Units.feetToMeters(2.5)),
           new Translation2d(Units.feetToMeters(15), Units.feetToMeters(0)),
@@ -95,9 +94,9 @@ public class DeterminePath extends CommandBase {
       );
     }
     if(isPathBBlue() == true ) {
+      ledController.setViolet();
       trajectory =  TrajectoryGenerator.generateTrajectory(
         new Pose2d(0, 0, new Rotation2d(0)),
-
         List.of(
           new Translation2d(Units.feetToMeters(12.5), Units.feetToMeters(0)),
           new Translation2d(Units.feetToMeters(17.5), Units.feetToMeters(5)),
@@ -110,33 +109,44 @@ public class DeterminePath extends CommandBase {
       );
     }
 
-    trajectory = TrajectoryGenerator.generateTrajectory(
-      new Pose2d(0, 0, new Rotation2d(0)),
-      List.of(),
-      new Pose2d(0, 1, new Rotation2d(0)),
-      config
-    );
-
     driveTrain.resetOdometry(new Pose2d());
 
-    command = new RamseteCommand(
-      trajectory,
-      driveTrain::getPose,
-      new RamseteController(kRamseteB, kRamseteZeta),
-      driveTrain.getSimpleMotorFeedForward(),
-      driveTrain.getKinematics(),
-      driveTrain::getDriveWheelSpeeds,
-      driveTrain.getLeftPIDController(),
-      driveTrain.getRightPIDController(),
-      driveTrain::setTankDriveVolts,
-      driveTrain
-    );
-    command.schedule();
+    // Keep this commentted out unless we're running the trajectory
+    // command = new RamseteCommand(
+    //   trajectory,
+    //   driveTrain::getPose,
+    //   new RamseteController(kRamseteB, kRamseteZeta),
+    //   driveTrain.getSimpleMotorFeedForward(),
+    //   driveTrain.getKinematics(),
+    //   driveTrain::getDriveWheelSpeeds,
+    //   driveTrain.getLeftPIDController(),
+    //   driveTrain.getRightPIDController(),
+    //   driveTrain::setTankDriveVolts,
+    //   driveTrain
+    // );
+    // command.schedule();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {}
+  public void execute() {
+    // NEED TO UPDATE FOR REAL LOGIC AND REAL TRAJECTORIES
+    if(isPathARed()) {
+      ledController.setRed();
+    }
+    else if(isPathBRed()) {
+      ledController.setOrange();
+    }
+    else if(isPathABlue()) {
+      ledController.setBlue();
+    }
+    else if(isPathBBlue()) {
+      ledController.setViolet();
+    }
+    else {
+      ledController.setWhite();
+    }
+  }
 
   // Called once the command ends or is interrupted.
   @Override
@@ -145,7 +155,7 @@ public class DeterminePath extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return command.isFinished();
+    return false;//command.isFinished();
   }
   
   private boolean isWithinThresh(double actual, double obtained, double thresh) {
@@ -160,47 +170,50 @@ public class DeterminePath extends CommandBase {
     double current_tx = limelight.getTX();
     double current_ty = limelight.getTY();
 
-    boolean correct_tx = isWithinThresh(aRed_tx, current_tx, .5);
-    boolean correct_ty = isWithinThresh(aRed_ty, current_ty, .5);
+    boolean correct_tx = isWithinThresh(aRed_tx, current_tx, kInterval);
+    boolean correct_ty = isWithinThresh(aRed_ty, current_ty, kInterval);
     
     if (correct_tx == true && correct_ty == true)
       goForPath = true;
 
     return goForPath;
   }
+
   private boolean isPathBRed() {
     boolean goForPath = false;
     double current_tx = limelight.getTX();
     double current_ty = limelight.getTY();
 
-    boolean correct_tx = isWithinThresh(bRed_tx, current_tx, .5);
-    boolean correct_ty = isWithinThresh(bRed_ty, current_ty, .5);
+    boolean correct_tx = isWithinThresh(bRed_tx, current_tx, kInterval);
+    boolean correct_ty = isWithinThresh(bRed_ty, current_ty, kInterval);
     
     if (correct_tx == true && correct_ty == true)
       goForPath = true;
 
     return goForPath;
   }
+
   private boolean isPathABlue() {
     boolean goForPath = false;
     double current_tx = limelight.getTX();
     double current_ty = limelight.getTY();
 
-    boolean correct_tx = isWithinThresh(aBlue_tx, current_tx, .5);
-    boolean correct_ty = isWithinThresh(aBlue_ty, current_ty, .5);
+    boolean correct_tx = isWithinThresh(aBlue_tx, current_tx, kInterval);
+    boolean correct_ty = isWithinThresh(aBlue_ty, current_ty, kInterval);
     
     if (correct_tx == true && correct_ty == true)
       goForPath = true;
 
     return goForPath;
   }
+
   private boolean isPathBBlue() {
     boolean goForPath = false;
     double current_tx = limelight.getTX();
     double current_ty = limelight.getTY();
 
-    boolean correct_tx = isWithinThresh(bBlue_tx, current_tx, .5);
-    boolean correct_ty = isWithinThresh(bBlue_ty, current_ty, .5);
+    boolean correct_tx = isWithinThresh(bBlue_tx, current_tx, kInterval);
+    boolean correct_ty = isWithinThresh(bBlue_ty, current_ty, kInterval);
     
     if (correct_tx == true && correct_ty == true)
       goForPath = true;
