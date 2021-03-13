@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.commands.DeterminePath;
+import frc.robot.subsystems.Blinkin;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Limelight;
 
@@ -22,12 +23,14 @@ public class RobotContainer {
   private DriveTrain driveTrain;
   private Limelight limelight;
   private DeterminePath determinePath;
-
+  private Blinkin blinkin;
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     driveTrain = new DriveTrain();
     limelight = new Limelight();
-    determinePath = new DeterminePath(driveTrain, limelight);
+    blinkin = new Blinkin();
+
+    determinePath = new DeterminePath(driveTrain, limelight, blinkin);
     configureButtonBindings(); // Configure the button bindings
   }
 
