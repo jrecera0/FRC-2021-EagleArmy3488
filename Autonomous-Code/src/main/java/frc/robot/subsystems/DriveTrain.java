@@ -53,7 +53,7 @@ public class DriveTrain extends SubsystemBase {
 
     kinematics = new DifferentialDriveKinematics(Units.inchesToMeters(kTrackWidth));
     odometry = new DifferentialDriveOdometry(getHeading());
-    feedForward = new SimpleMotorFeedforward(kS, kP, kA);
+    feedForward = new SimpleMotorFeedforward(kS, kV, kA);
     leftPIDController = new PIDController(kP, kI, kD);
     rightPIDController = new PIDController(kP, kI, kD);
   }
@@ -67,8 +67,6 @@ public class DriveTrain extends SubsystemBase {
   }
 
   // Feeds for autonomous
-
-
   // Controlling DriveTrain  
   public void arcadeDrive(double fwd, double rot) {
     driveTrain.arcadeDrive(fwd, rot);
@@ -156,13 +154,14 @@ public class DriveTrain extends SubsystemBase {
   }
 
   public double getGyroAngle() {
-    return gyro.getAngle();
+    return kGyroReversed ? -gyro.getAngle() : gyro.getAngle();
   }
 
   // Reset Functions
   public void resetOdometry(Pose2d pose) {
     resetEncoders();
     resetGyro();
+    System.out.println("WARNING! " + getHeading());
     odometry.resetPosition(pose, getHeading());
   }
 

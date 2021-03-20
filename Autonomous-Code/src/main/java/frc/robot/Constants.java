@@ -16,21 +16,21 @@ public final class Constants {
     public class DriveConstants {
         // CANBus
         public static final int kFrontLeftMotorID = 2;
-        public static final int kFrontRightMotorID = 3;
+        public static final int kFrontRightMotorID = 4;
         public static final int kBackLeftMotorID = 1;
-        public static final int kBackRightMotorID = 4;
+        public static final int kBackRightMotorID = 3;
 
         // Directional Logic
         //public static final boolean kLeftMotorsInverted = true;
         //public static final boolean kRightMotorsInverted = true;
-        public static final boolean kIsLeftVoltageInverted = false;
-        public static final boolean kIsRightVoltageInverted = true;
-        public static final boolean kLeftEncoderReversed = true;
-        public static final boolean kRightEncoderReversed = false;
-        public static final boolean kGyroReversed = false;
+        public static final boolean kIsLeftVoltageInverted = false; // OLD false
+        public static final boolean kIsRightVoltageInverted = true; // OLD true
+        public static final boolean kLeftEncoderReversed = false; // OLD false
+        public static final boolean kRightEncoderReversed = true; // OLD true
+        public static final boolean kGyroReversed = false; // OLD false
 
         // Physical Robot Properties
-        public static final double kTrackWidth = 24.25;
+        public static final double kTrackWidth = 24.3125;
         public static final double kWheelRadius = 3.625;
         public static final double kGearRatio = 10.71;
         public static final double kEncoderResolution = 2048;
@@ -45,29 +45,31 @@ public final class Constants {
         public static final double kRamseteB = 2;
         public static final double kRamseteZeta = 0.7;
 
+        // Max Speeds
+        public static final double kVelocityMax = 1.8288; // 6ft/s
+        public static final double kAccelerationMax = 1.2192; // 4ft/s^2
         // Logging
         public static final boolean kLoggingEnabled = false;
     }
 
     public class FieldPositioning {
         // Other
-        public static final double kInterval = 0.75;
+        public static final double kInterval = 2;
         // Path A RED
-        public static final double aRed_tx = 28;
-        public static final double aRed_ty = -19;
+        public static final double aRed_tx = 58.60;
+        public static final double aRed_ty = -49.30;
         // Path A BLUE
-        public static final double aBlue_tx = 13.45;
-        public static final double aBlue_ty = -14.05;
+        public static final double aBlue_tx = 47.65;
+        public static final double aBlue_ty = -45.5;
         // Path B RED
-        public static final double bRed_tx = 1.82;
-        public static final double bRed_ty = -22.87;
+        public static final double bRed_tx = 38.21;
+        public static final double bRed_ty = -52.15;
         // Path B Blue
-        public static final double bBlue_tx = 3.78;
-        public static final double bBlue_ty = -14.01;
+        public static final double bBlue_tx = 35.75;
+        public static final double bBlue_ty = -44.50;
     }
 
     public class BlinkinConstants {
-        public static final int kBlinkinPort = 0;
         public static final double kRed = 0.61;
         public static final double kOrange = 0.65;
         public static final double kYellow = 0.69;
@@ -75,10 +77,13 @@ public final class Constants {
         public static final double kBlue = 0.79;
         public static final double kViolet = 0.91;
         public static final double kWhite = 0.93;
-        public static final double kBlack = 0.99;
+        public static final double kBlack = 0.99;        
+        public static final int kBlinkinPort = 0;
     }
 
     public class TrajectoryPathnames {
-        
+        public static final String kBarrelRacePath = "paths/BarrelRace.wpilib.json";
+        public static final String kBouncePath = "paths/bounce.wpilib.json";
+        public static final String kLinePath = "paths/Line33.wpilib.json";
     }
 }

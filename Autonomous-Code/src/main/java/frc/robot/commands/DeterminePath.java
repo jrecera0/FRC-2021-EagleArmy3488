@@ -5,10 +5,9 @@
 package frc.robot.commands;
 
 import static frc.robot.Constants.FieldPositioning.*;
+import static frc.robot.Constants.DriveConstants.*;
 
 import java.util.List;
-
-import static frc.robot.Constants.DriveConstants.*;
 
 import edu.wpi.first.wpilibj.controller.RamseteController;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
@@ -38,7 +37,7 @@ public class DeterminePath extends CommandBase {
     driveTrain = drive;
     limelight = fieldVision;
     ledController = leds;
-    config = new TrajectoryConfig(Units.feetToMeters(6), Units.feetToMeters(4));
+    config = new TrajectoryConfig(kVelocityMax, kAccelerationMax);
     config.setKinematics(driveTrain.getKinematics());
     addRequirements(driveTrain, limelight); // Excluding the LEDs here since they're not a HUGE requirement
   }
@@ -50,102 +49,91 @@ public class DeterminePath extends CommandBase {
     // NEED TO UPDATE FOR REAL LOGIC AND REAL TRAJECTORIES
     if(isPathARed() == true) {
       ledController.setRed();
-      trajectory =  TrajectoryGenerator.generateTrajectory(
+      trajectory = TrajectoryGenerator.generateTrajectory(
         new Pose2d(0, 0, new Rotation2d(0)),
         List.of(
           new Translation2d(Units.feetToMeters(5), Units.feetToMeters(-2.5)),
           new Translation2d(Units.feetToMeters(10), Units.feetToMeters(-5)),
-          new Translation2d(Units.feetToMeters(12.5), Units.feetToMeters(-7.5)),
-          new Translation2d(Units.feetToMeters(25), Units.feetToMeters(0))
+          new Translation2d(Units.feetToMeters(15), Units.feetToMeters(2.5))
         ),
         new Pose2d(Units.feetToMeters(30), Units.feetToMeters(0), new Rotation2d(0)),
         // Pass config
         config
       );
     }
-    if(isPathBRed() == true ) {
+    if(isPathBRed() == true) {
       ledController.setOrange();
-      trajectory =  TrajectoryGenerator.generateTrajectory(
+      trajectory = TrajectoryGenerator.generateTrajectory(
         new Pose2d(0, 0, new Rotation2d(0)),
         List.of(
           new Translation2d(Units.feetToMeters(5), Units.feetToMeters(0)),
           new Translation2d(Units.feetToMeters(10), Units.feetToMeters(-5)),
-          new Translation2d(Units.feetToMeters(15), Units.feetToMeters(0)),
-          new Translation2d(Units.feetToMeters(25), Units.feetToMeters(0))
+          new Translation2d(Units.feetToMeters(15), Units.feetToMeters(0))
         ),
         new Pose2d(Units.feetToMeters(30), Units.feetToMeters(0), new Rotation2d(0)),
         // Pass config
         config
       );
     }
-    if(isPathABlue() == true ) {
+    if(isPathABlue() == true) { // WORKING
       ledController.setBlue();
-      trajectory =  TrajectoryGenerator.generateTrajectory(
+      trajectory = TrajectoryGenerator.generateTrajectory(
         new Pose2d(0, 0, new Rotation2d(0)),
         List.of(
-          new Translation2d(Units.feetToMeters(12.5), Units.feetToMeters(2.5)),
-          new Translation2d(Units.feetToMeters(15), Units.feetToMeters(0)),
-          new Translation2d(Units.feetToMeters(20), Units.feetToMeters(-2.5)),
-          new Translation2d(Units.feetToMeters(25), Units.feetToMeters(0))
+          new Translation2d(Units.feetToMeters(12.5), Units.feetToMeters(-2.5)),
+          new Translation2d(Units.feetToMeters(15), Units.feetToMeters(5)),
+          new Translation2d(Units.feetToMeters(20.0), Units.feetToMeters(2.5))
+
         ),
-        new Pose2d(Units.feetToMeters(30), Units.feetToMeters(0), new Rotation2d(0)),
+        new Pose2d(Units.feetToMeters(30), Units.feetToMeters(2.5), new Rotation2d(0)),
         // Pass config
         config
       );
     }
-    if(isPathBBlue() == true ) {
+    if(isPathBBlue() == true) { // WORKING
       ledController.setViolet();
-      trajectory =  TrajectoryGenerator.generateTrajectory(
+      trajectory = TrajectoryGenerator.generateTrajectory(
         new Pose2d(0, 0, new Rotation2d(0)),
         List.of(
           new Translation2d(Units.feetToMeters(12.5), Units.feetToMeters(0)),
           new Translation2d(Units.feetToMeters(17.5), Units.feetToMeters(5)),
-          new Translation2d(Units.feetToMeters(22.5), Units.feetToMeters(0)),
-          new Translation2d(Units.feetToMeters(25), Units.feetToMeters(0))
+          new Translation2d(Units.feetToMeters(22.5), Units.feetToMeters(0))
         ),
         new Pose2d(Units.feetToMeters(30), Units.feetToMeters(0), new Rotation2d(0)),
         // Pass config
         config
       );
     }
+    if(trajectory != null) {
+      // Make sure odometry is reset
+      driveTrain.resetOdometry(new Pose2d());
 
-    driveTrain.resetOdometry(new Pose2d());
-
-    // Keep this commentted out unless we're running the trajectory
-    // command = new RamseteCommand(
-    //   trajectory,
-    //   driveTrain::getPose,
-    //   new RamseteController(kRamseteB, kRamseteZeta),
-    //   driveTrain.getSimpleMotorFeedForward(),
-    //   driveTrain.getKinematics(),
-    //   driveTrain::getDriveWheelSpeeds,
-    //   driveTrain.getLeftPIDController(),
-    //   driveTrain.getRightPIDController(),
-    //   driveTrain::setTankDriveVolts,
-    //   driveTrain
-    // );
-    // command.schedule();
+      // Run the Ramsete Command to make the robot drive around
+      command = new RamseteCommand(
+        trajectory,
+        driveTrain::getPose,
+        new RamseteController(kRamseteB, kRamseteZeta),
+        driveTrain.getSimpleMotorFeedForward(),
+        driveTrain.getKinematics(),
+        driveTrain::getDriveWheelSpeeds,
+        driveTrain.getLeftPIDController(),
+        driveTrain.getRightPIDController(),
+        driveTrain::setTankDriveVolts,
+        driveTrain
+      );
+      command.schedule();
+    }
+    else {
+      System.out.println("WARNING! No path found.");
+      ledController.setWhite();
+    }
   }
 
   // Called every time the scheduler runs while the command is scheduled.
+  // TODO: Add polling system to determine path?
   @Override
   public void execute() {
-    // NEED TO UPDATE FOR REAL LOGIC AND REAL TRAJECTORIES
-    if(isPathARed()) {
-      ledController.setRed();
-    }
-    else if(isPathBRed()) {
-      ledController.setOrange();
-    }
-    else if(isPathABlue()) {
-      ledController.setBlue();
-    }
-    else if(isPathBBlue()) {
-      ledController.setViolet();
-    }
-    else {
-      ledController.setWhite();
-    }
+    //showLedFeedback();
   }
 
   // Called once the command ends or is interrupted.
@@ -155,7 +143,8 @@ public class DeterminePath extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;//command.isFinished();
+    // return false;
+    return command.isFinished();
   }
   
   private boolean isWithinThresh(double actual, double obtained, double thresh) {
@@ -219,5 +208,23 @@ public class DeterminePath extends CommandBase {
       goForPath = true;
 
     return goForPath;
+  }
+
+  private void showLedFeedback() {
+    if(isPathARed()) {
+      ledController.setRed();
+    }
+    else if(isPathBRed()) {
+      ledController.setOrange();
+    }
+    else if(isPathABlue()) {
+      ledController.setBlue();
+    }
+    else if(isPathBBlue()) {
+      ledController.setViolet();
+    }
+    else {
+      ledController.setWhite();
+    }
   }
 }

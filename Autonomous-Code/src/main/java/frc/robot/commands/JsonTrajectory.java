@@ -4,25 +4,77 @@
 
 package frc.robot.commands;
 
+import static frc.robot.Constants.DriveConstants.*;
+import static frc.robot.Constants.TrajectoryPathnames.*;
+
+import java.io.IOException;
+import java.nio.file.Path;
+
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.controller.RamseteController;
+import edu.wpi.first.wpilibj.geometry.Pose2d;
+import edu.wpi.first.wpilibj.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.geometry.Translation2d;
+import edu.wpi.first.wpilibj.trajectory.Trajectory;
+import edu.wpi.first.wpilibj.trajectory.TrajectoryUtil;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.RamseteCommand;
+import frc.robot.subsystems.Blinkin;
+import frc.robot.subsystems.DriveTrain;
 
 public class JsonTrajectory extends CommandBase {
+  private DriveTrain driveTrain;
+  private Blinkin ledController;
+  private Trajectory trajectory;
+  private RamseteCommand command;
+  //private TrajectoryConfig config;
+  private String trajectoryPathname;
+
   /** Creates a new JsonTrajectory. */
-  public JsonTrajectory() {
+  public JsonTrajectory(DriveTrain drive, Blinkin leds) {
     // Use addRequirements() here to declare subsystem dependencies.
+    driveTrain = drive;
+    ledController = leds;
+    trajectoryPathname = kLinePath; // CHANGE HERE TO CHANGE WHAT PATH IS RUN
+    addRequirements(driveTrain);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    // String trajectoryJSON = "paths/YourPath.wpilib.json";
-    // Trajectory trajectory = new Trajectory();
-    // try {
-    //   Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSON);
-    //   trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
-    // } catch (IOException ex) {
-    //   DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON, ex.getStackTrace());
-    // }
+    // Attempt to open the filepath for the trajectory
+    try {
+      Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryPathname);
+      trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
+    } catch (IOException ex) {
+      DriverStation.reportError("Unable to open trajectory: " + trajectoryPathname, ex.getStackTrace());
+    }
+
+    // If successful, follow the trajectory.
+    if(trajectory != null) {
+      // Make sure odometry is reset
+      driveTrain.resetOdometry(new Pose2d(0.0, 0.0, new Rotation2d(0)));
+
+      // Run the Ramsete Command to make the robot drive around
+      command = new RamseteCommand(
+        trajectory,
+        driveTrain::getPose,
+        new RamseteController(kRamseteB, kRamseteZeta),
+        driveTrain.getSimpleMotorFeedForward(),
+        driveTrain.getKinematics(),
+        driveTrain::getDriveWheelSpeeds,
+        driveTrain.getLeftPIDController(),
+        driveTrain.getRightPIDController(),
+        driveTrain::setTankDriveVolts,
+        driveTrain
+      );
+      command.schedule();
+    }
+    else {
+      System.out.println("WARNING! No path found.");
+      ledController.setWhite();
+    }
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -36,6 +88,7 @@ public class JsonTrajectory extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    //return false;
+    return command.isFinished();
   }
 }
