@@ -9,15 +9,20 @@ import static frc.robot.Constants.TrajectoryPathnames.*;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.List;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.controller.RamseteController;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.geometry.Transform2d;
 import edu.wpi.first.wpilibj.geometry.Translation2d;
 import edu.wpi.first.wpilibj.trajectory.Trajectory;
+import edu.wpi.first.wpilibj.trajectory.TrajectoryConfig;
+import edu.wpi.first.wpilibj.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryUtil;
+import edu.wpi.first.wpilibj.util.Units;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import frc.robot.subsystems.Blinkin;
@@ -43,6 +48,9 @@ public class JsonTrajectory extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    // Make sure odometry is reset
+    driveTrain.resetOdometry(new Pose2d(0.0, 0.0, new Rotation2d(0)));
+
     // Attempt to open the filepath for the trajectory
     try {
       Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryPathname);
@@ -50,11 +58,22 @@ public class JsonTrajectory extends CommandBase {
     } catch (IOException ex) {
       DriverStation.reportError("Unable to open trajectory: " + trajectoryPathname, ex.getStackTrace());
     }
+    // TrajectoryConfig config = new TrajectoryConfig(kVelocityMax, kAccelerationMax);
+    // trajectory = TrajectoryGenerator.generateTrajectory(
+    //     new Pose2d(0, 0, new Rotation2d(0)),
+    //     List.of(
+    //     ),
+    //     new Pose2d(Units.feetToMeters(10), Units.feetToMeters(0), new Rotation2d(0)),
+    //     // Pass config
+    //     config
+    //   );
 
     // If successful, follow the trajectory.
     if(trajectory != null) {
-      // Make sure odometry is reset
-      driveTrain.resetOdometry(new Pose2d(0.0, 0.0, new Rotation2d(0)));
+      // ADDED 3/23/21
+      // Translate Trajectory to Robot Pos
+      Transform2d transform = driveTrain.getPose().minus(trajectory.getInitialPose());
+      trajectory = trajectory.transformBy(transform);
 
       // Run the Ramsete Command to make the robot drive around
       command = new RamseteCommand(

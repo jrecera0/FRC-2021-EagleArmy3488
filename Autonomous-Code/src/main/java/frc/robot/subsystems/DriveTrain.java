@@ -38,17 +38,31 @@ public class DriveTrain extends SubsystemBase {
     frontLeftMotor = new WPI_TalonFX(kFrontLeftMotorID);
     frontRightMotor = new WPI_TalonFX(kFrontRightMotorID);
     backLeftMotor = new WPI_TalonFX(kBackLeftMotorID);
-    backRightMotor = new WPI_TalonFX(kBackRightMotorID);
-
+    backRightMotor =  new WPI_TalonFX(kBackRightMotorID);
+    setFactory(frontLeftMotor);
+    setFactory(frontRightMotor);
+    setFactory(backLeftMotor);
+    setFactory(backRightMotor);
+    frontLeftMotor.configOpenloopRamp(0.125);
+    frontRightMotor.configOpenloopRamp(0.125);
+    backLeftMotor.configOpenloopRamp(0.125);
+    backRightMotor.configOpenloopRamp(0.125);
+    // frontLeftMotor.enableVoltageCompensation(false);
+    // frontRightMotor.enableVoltageCompensation(false);
+    // backLeftMotor.enableVoltageCompensation(false);
+    // backRightMotor.enableVoltageCompensation(false);
+    // backLeftMotor.follow(frontLeftMotor); 
+    // backRightMotor.follow(frontRightMotor); 
     setDriveMode(NeutralMode.Brake);
 
     leftMotorGroup = new SpeedControllerGroup(frontLeftMotor, backLeftMotor);
     rightMotorGroup = new SpeedControllerGroup(frontRightMotor, backRightMotor);
 
     driveTrain = new DifferentialDrive(leftMotorGroup, rightMotorGroup);
+    driveTrain.setSafetyEnabled(false);
 
     gyro = new AHRS(SPI.Port.kMXP);
-
+    
     resetEncoders(); // make sure odometry isn't screwed up
 
     kinematics = new DifferentialDriveKinematics(Units.inchesToMeters(kTrackWidth));
@@ -72,6 +86,10 @@ public class DriveTrain extends SubsystemBase {
     driveTrain.arcadeDrive(fwd, rot);
   }
 
+  public void tankDrive(double left, double right) {
+    driveTrain.tankDrive(left, right);
+  }
+
   public void setTankDriveVolts(double leftVolts, double rightVolts) {
     leftMotorGroup.setVoltage((kIsLeftVoltageInverted) ? -leftVolts : leftVolts);
     rightMotorGroup.setVoltage((kIsRightVoltageInverted) ? -rightVolts : rightVolts);
@@ -87,6 +105,10 @@ public class DriveTrain extends SubsystemBase {
     frontRightMotor.setNeutralMode(driveMode);
     backLeftMotor.setNeutralMode(driveMode);
     backRightMotor.setNeutralMode(driveMode);
+  }
+
+  public void setFactory(WPI_TalonFX motor) {
+    motor.configFactoryDefault();
   }
 
   // Obtaining DriveTrain Information
@@ -205,35 +227,35 @@ public class DriveTrain extends SubsystemBase {
     double backRightMotorOutputPercent = backRightMotor.getMotorOutputPercent();
 
     // Verbose logging (the WARNING! allows for info to be seen in driver station)
-    System.out.println("WARNING! ====BEGIN DRIVETRAIN LOG====");
-    System.out.println("WARNING! gyroAngle: " + gyroAngle);
-    System.out.println("WARNING! <<<<<< LEFT TRAIN <<<<<<");
-    System.out.println("WARNING! leftSideRotationsPerSecond: " + leftSideRotationsPerSecond);
-    System.out.println("WARNING! leftSidePhysicalVelocity: " + leftSidePhysicalVelocity);
-    System.out.println("WARNING! leftSideDistanceTraversed: " + leftSideDistanceTraversed);
-    System.out.println("WARNING! rawLeftEncoderPosition: " + rawLeftEncoderPosition);
-    System.out.println("WARNING! rawLeftEncoderVelocity: " + rawLeftEncoderVelocity);
-    System.out.println("WARNING! frontLeftMotorInputCurrent: " + frontLeftMotorInputCurrent);
-    System.out.println("WARNING! frontLeftMotorOutputCurrent: " + frontLeftMotorOutputCurrent);
-    System.out.println("WARNING! frontLeftMotorOutputVoltage: " + frontLeftMotorOutputVoltage);
-    System.out.println("WARNING! frontLeftMotorOutputPercent: " + frontLeftMotorOutputPercent);
-    System.out.println("WARNING! backLeftMotorInputCurrent: " + backLeftMotorInputCurrent);
-    System.out.println("WARNING! backLeftMotorOutputCurrent: " + backLeftMotorOutputCurrent);
-    System.out.println("WARNING! backLeftMotorOutputVoltage: " + backLeftMotorOutputVoltage);
-    System.out.println("WARNING! backLeftMotorOutputPercent: " + backLeftMotorOutputPercent);
-    System.out.println("WARNING! >>>>>> RIGHT TRAIN >>>>>>");
-    System.out.println("WARNING! rightSideRotationsPerSecond: " + rightSideRotationsPerSecond);
-    System.out.println("WARNING! rightSidePhysicalVelocity: " + rightSidePhysicalVelocity);
-    System.out.println("WARNING! rightSideDistanceTraversed: " + rightSideDistanceTraversed);
-    System.out.println("WARNING! rawRightEncoderPosition: " + rawRightEncoderPosition);
-    System.out.println("WARNING! rawRightEncoderVelocity: " + rawRightEncoderVelocity);
-    System.out.println("WARNING! frontRightMotorInputCurrent: " + frontRightMotorInputCurrent);
-    System.out.println("WARNING! frontRightMotorOutputCurrent: " + frontRightMotorOutputCurrent);
-    System.out.println("WARNING! frontRightMotorOutputVoltage: " + frontRightMotorOutputVoltage);
-    System.out.println("WARNING! frontRightMotorOutputPercent: " + frontRightMotorOutputPercent);
-    System.out.println("WARNING! backRightMotorInputCurrent: " + backRightMotorInputCurrent);
-    System.out.println("WARNING! backRightMotorOutputCurrent: " + backRightMotorOutputCurrent);
-    System.out.println("WARNING! backRightMotorOutputVoltage: " + backRightMotorOutputVoltage);
-    System.out.println("WARNING! backRightMotorOutputPercent: " + backRightMotorOutputPercent);
+    // System.out.println("WARNING! ====BEGIN DRIVETRAIN LOG====");
+    // System.out.println("WARNING! gyroAngle: " + gyroAngle);
+    // System.out.println("WARNING! <<<<<< LEFT TRAIN <<<<<<");
+    // System.out.println("WARNING! leftSideRotationsPerSecond: " + leftSideRotationsPerSecond);
+    // System.out.println("WARNING! leftSidePhysicalVelocity: " + leftSidePhysicalVelocity);
+    // System.out.println("WARNING! leftSideDistanceTraversed: " + leftSideDistanceTraversed);
+    // System.out.println("WARNING! rawLeftEncoderPosition: " + rawLeftEncoderPosition);
+    // System.out.println("WARNING! rawLeftEncoderVelocity: " + rawLeftEncoderVelocity);
+    // System.out.println("WARNING! frontLeftMotorInputCurrent: " + frontLeftMotorInputCurrent);
+    // System.out.println("WARNING! frontLeftMotorOutputCurrent: " + frontLeftMotorOutputCurrent);
+    // System.out.println("WARNING! frontLeftMotorOutputVoltage: " + frontLeftMotorOutputVoltage);
+    // System.out.println("WARNING! frontLeftMotorOutputPercent: " + frontLeftMotorOutputPercent);
+    // System.out.println("WARNING! backLeftMotorInputCurrent: " + backLeftMotorInputCurrent);
+    // System.out.println("WARNING! backLeftMotorOutputCurrent: " + backLeftMotorOutputCurrent);
+    // System.out.println("WARNING! backLeftMotorOutputVoltage: " + backLeftMotorOutputVoltage);
+    // System.out.println("WARNING! backLeftMotorOutputPercent: " + backLeftMotorOutputPercent);
+    // System.out.println("WARNING! >>>>>> RIGHT TRAIN >>>>>>");
+    // System.out.println("WARNING! rightSideRotationsPerSecond: " + rightSideRotationsPerSecond);
+    // System.out.println("WARNING! rightSidePhysicalVelocity: " + rightSidePhysicalVelocity);
+    // System.out.println("WARNING! rightSideDistanceTraversed: " + rightSideDistanceTraversed);
+    // System.out.println("WARNING! rawRightEncoderPosition: " + rawRightEncoderPosition);
+    // System.out.println("WARNING! rawRightEncoderVelocity: " + rawRightEncoderVelocity);
+    // System.out.println("WARNING! frontRightMotorInputCurrent: " + frontRightMotorInputCurrent);
+    // System.out.println("WARNING! frontRightMotorOutputCurrent: " + frontRightMotorOutputCurrent);
+    // System.out.println("WARNING! frontRightMotorOutputVoltage: " + frontRightMotorOutputVoltage);
+    // System.out.println("WARNING! frontRightMotorOutputPercent: " + frontRightMotorOutputPercent);
+    // System.out.println("WARNING! backRightMotorInputCurrent: " + backRightMotorInputCurrent);
+    // System.out.println("WARNING! backRightMotorOutputCurrent: " + backRightMotorOutputCurrent);
+    // System.out.println("WARNING! backRightMotorOutputVoltage: " + backRightMotorOutputVoltage);
+    // System.out.println("WARNING! backRightMotorOutputPercent: " + backRightMotorOutputPercent);
   }
 }

@@ -29,27 +29,35 @@ public final class Constants {
         public static final boolean kRightEncoderReversed = true; // OLD true
         public static final boolean kGyroReversed = false; // OLD false
 
+
         // Physical Robot Properties
         public static final double kTrackWidth = 24.3125;
-        public static final double kWheelRadius = 3.625;
+        public static final double kWheelRadius = 3.425;
         public static final double kGearRatio = 10.71;
         public static final double kEncoderResolution = 2048;
 
-        // Characterization Constants
-        public static final double kP = 0.0109;
+        // Characterization Constants (ACTUAL)
+        // public static final double kP = 0.0109;
+        // public static final double kI = 0.0;
+        // public static final double kD = 0.0;
+        // public static final double kS = 0.226;
+        // public static final double kV = 1.95;
+        // public static final double kA = 0.299;
+        // TESTING
+        public static final double kP = 2.5;
         public static final double kI = 0.0;
         public static final double kD = 0.0;
-        public static final double kS = 0.226;
+        public static final double kS = 0.68;
         public static final double kV = 1.95;
-        public static final double kA = 0.299;
+        public static final double kA = 0.242;
         public static final double kRamseteB = 2;
         public static final double kRamseteZeta = 0.7;
 
         // Max Speeds
-        public static final double kVelocityMax = 1.8288; // 6ft/s
-        public static final double kAccelerationMax = 1.2192; // 4ft/s^2
+        public static final double kVelocityMax = 2; //original: 1.8288; // 6ft/s
+        public static final double kAccelerationMax = 1.5; //original: 1.2192; // 4ft/s^2
         // Logging
-        public static final boolean kLoggingEnabled = false;
+        public static final boolean kLoggingEnabled = false; // do. not. set. true.
     }
 
     public class FieldPositioning {
@@ -80,10 +88,10 @@ public final class Constants {
         public static final double kBlack = 0.99;        
         public static final int kBlinkinPort = 0;
     }
-
+        
     public class TrajectoryPathnames {
         public static final String kBarrelRacePath = "paths/BarrelRace.wpilib.json";
         public static final String kBouncePath = "paths/bounce.wpilib.json";
-        public static final String kLinePath = "paths/Line33.wpilib.json";
+        public static final String kLinePath = "paths/Bouce.wpilib.json";
     }
 }

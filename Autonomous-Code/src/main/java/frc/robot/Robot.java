@@ -87,6 +87,7 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     dt.arcadeDrive(-ct.getRawAxis(1), ct.getRawAxis(4)); // DELETE ME
+    // dt.tankDrive(-ct.getRawAxis(1), -ct.getRawAxis(5) );
   }
 
   @Override
