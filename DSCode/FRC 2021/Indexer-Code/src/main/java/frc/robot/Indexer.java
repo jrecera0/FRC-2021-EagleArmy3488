@@ -69,7 +69,7 @@ public class Indexer extends SubsystemBase {
     public void moveIndexer(boolean[] newIndexState) {
         updateCurrIndexState();
         if(newIndexState[0] != currIndexState[0]) {
-            setFrontSectSpeed(kIndexerSpeed);
+            setFrontSectSpeed(-kIndexerSpeed);
         } else {
             setFrontSectSpeed(0.0);
         }

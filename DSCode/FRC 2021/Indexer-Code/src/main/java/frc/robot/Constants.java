@@ -11,7 +11,7 @@ public class Constants {
         public static final int kBackSensorID = 11;
 
         // Speeds
-        public static final double kIndexerSpeed = 0.3;
+        public static final double kIndexerSpeed = 0.2;
         
         // Threshing
         public static final double kSensorThresh = 5.90551; // is in inches, ~150mm
