@@ -7,103 +7,57 @@ package frc.robot.commands;
 import static frc.robot.Constants.FieldPositioning.*;
 import static frc.robot.Constants.DriveConstants.*;
 
-import java.util.List;
-
 import edu.wpi.first.wpilibj.controller.RamseteController;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
-import edu.wpi.first.wpilibj.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.geometry.Translation2d;
 import edu.wpi.first.wpilibj.trajectory.Trajectory;
-import edu.wpi.first.wpilibj.trajectory.TrajectoryConfig;
-import edu.wpi.first.wpilibj.trajectory.TrajectoryGenerator;
-import edu.wpi.first.wpilibj.util.Units;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
-import frc.robot.subsystems.Blinkin;
 import frc.robot.subsystems.DriveTrain;
+import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Limelight;
+import frc.robot.subsystems.Trajectories;
 
 public class DeterminePath extends CommandBase {
   /** Creates a new DeterminePath. */
   private Limelight limelight;
   private DriveTrain driveTrain;
   private Trajectory trajectory;
-  private Blinkin ledController;
+  private Trajectories paths;
   private RamseteCommand command;
-  private TrajectoryConfig config; 
+  private Intake intake;
 
-  public DeterminePath(DriveTrain drive, Limelight fieldVision, Blinkin leds) {
+  public DeterminePath(DriveTrain drive, Intake pickUp, Limelight fieldVision, Trajectories trajectories) {
     // Use addRequirements() here to declare subsystem dependencies.
     driveTrain = drive;
+    intake = pickUp;
     limelight = fieldVision;
-    ledController = leds;
-    config = new TrajectoryConfig(kVelocityMax, kAccelerationMax);
-    config.setKinematics(driveTrain.getKinematics());
-    addRequirements(driveTrain, limelight); // Excluding the LEDs here since they're not a HUGE requirement
+    paths = trajectories;
+    addRequirements(driveTrain, limelight);
   }
 
   // Called when the command is initially scheduled.
   // Plan here is to figure out what path we're taking
   @Override
   public void initialize() {
-    // NEED TO UPDATE FOR REAL LOGIC AND REAL TRAJECTORIES
+    // Determing the correct path
     if(isPathARed() == true) {
-      ledController.setRed();
-      trajectory = TrajectoryGenerator.generateTrajectory(
-        new Pose2d(0, 0, new Rotation2d(0)),
-        List.of(
-          new Translation2d(Units.feetToMeters(5), Units.feetToMeters(-2.5)),
-          new Translation2d(Units.feetToMeters(10), Units.feetToMeters(-5)),
-          new Translation2d(Units.feetToMeters(15), Units.feetToMeters(2.5))
-        ),
-        new Pose2d(Units.feetToMeters(30), Units.feetToMeters(0), new Rotation2d(0)),
-        // Pass config
-        config
-      );
+      System.out.println("WARNING! Picked A_RED");
+      trajectory = paths.getPathARed();
     }
-    if(isPathBRed() == true) {
-      ledController.setOrange();
-      trajectory = TrajectoryGenerator.generateTrajectory(
-        new Pose2d(0, 0, new Rotation2d(0)),
-        List.of(
-          new Translation2d(Units.feetToMeters(5), Units.feetToMeters(0)),
-          new Translation2d(Units.feetToMeters(10), Units.feetToMeters(-5)),
-          new Translation2d(Units.feetToMeters(15), Units.feetToMeters(0))
-        ),
-        new Pose2d(Units.feetToMeters(30), Units.feetToMeters(0), new Rotation2d(0)),
-        // Pass config
-        config
-      );
+    else if(isPathBRed() == true) {
+      System.out.println("WARNING! Picked B_RED");
+      trajectory = paths.getPathBRed();
     }
-    if(isPathABlue() == true) { // WORKING
-      ledController.setBlue();
-      trajectory = TrajectoryGenerator.generateTrajectory(
-        new Pose2d(0, 0, new Rotation2d(0)),
-        List.of(
-          new Translation2d(Units.feetToMeters(12.5), Units.feetToMeters(-2.5)),
-          new Translation2d(Units.feetToMeters(15), Units.feetToMeters(5)),
-          new Translation2d(Units.feetToMeters(20.0), Units.feetToMeters(2.5))
+    else if(isPathABlue() == true) {
+      System.out.println("WARNING! Picked A_BLUE");
+      trajectory = paths.getPathABlue();
+    }
+    else if(isPathBBlue() == true) {
+      System.out.println("WARNING! Picked B_BLUE");
+      trajectory = paths.getPathBBlue();
+    }
 
-        ),
-        new Pose2d(Units.feetToMeters(30), Units.feetToMeters(2.5), new Rotation2d(0)),
-        // Pass config
-        config
-      );
-    }
-    if(isPathBBlue() == true) { // WORKING
-      ledController.setViolet();
-      trajectory = TrajectoryGenerator.generateTrajectory(
-        new Pose2d(0, 0, new Rotation2d(0)),
-        List.of(
-          new Translation2d(Units.feetToMeters(12.5), Units.feetToMeters(0)),
-          new Translation2d(Units.feetToMeters(17.5), Units.feetToMeters(5)),
-          new Translation2d(Units.feetToMeters(22.5), Units.feetToMeters(0))
-        ),
-        new Pose2d(Units.feetToMeters(30), Units.feetToMeters(0), new Rotation2d(0)),
-        // Pass config
-        config
-      );
-    }
+    // If path found, run the path
     if(trajectory != null) {
       // Make sure odometry is reset
       driveTrain.resetOdometry(new Pose2d());
@@ -122,10 +76,8 @@ public class DeterminePath extends CommandBase {
         driveTrain
       );
       command.schedule();
-    }
-    else {
+    } else {
       System.out.println("WARNING! No path found.");
-      ledController.setWhite();
     }
   }
 
@@ -133,12 +85,14 @@ public class DeterminePath extends CommandBase {
   // TODO: Add polling system to determine path?
   @Override
   public void execute() {
-    //showLedFeedback();
+    intake.pickUp();
   }
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+    intake.stop();
+  }
 
   // Returns true when the command should end.
   @Override
@@ -147,6 +101,7 @@ public class DeterminePath extends CommandBase {
     return command.isFinished();
   }
   
+  // Limelight checks
   private boolean isWithinThresh(double actual, double obtained, double thresh) {
     if (obtained - thresh > actual || obtained + thresh < actual)
       return false;
@@ -208,23 +163,5 @@ public class DeterminePath extends CommandBase {
       goForPath = true;
 
     return goForPath;
-  }
-
-  private void showLedFeedback() {
-    if(isPathARed()) {
-      ledController.setRed();
-    }
-    else if(isPathBRed()) {
-      ledController.setOrange();
-    }
-    else if(isPathABlue()) {
-      ledController.setBlue();
-    }
-    else if(isPathBBlue()) {
-      ledController.setViolet();
-    }
-    else {
-      ledController.setWhite();
-    }
   }
 }

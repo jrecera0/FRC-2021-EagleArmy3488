@@ -7,41 +7,30 @@ package frc.robot.commands;
 import static frc.robot.Constants.DriveConstants.*;
 import static frc.robot.Constants.TrajectoryPathnames.*;
 
-import java.io.IOException;
-import java.nio.file.Path;
-import java.util.List;
-
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.controller.RamseteController;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.geometry.Transform2d;
-import edu.wpi.first.wpilibj.geometry.Translation2d;
 import edu.wpi.first.wpilibj.trajectory.Trajectory;
-import edu.wpi.first.wpilibj.trajectory.TrajectoryConfig;
-import edu.wpi.first.wpilibj.trajectory.TrajectoryGenerator;
-import edu.wpi.first.wpilibj.trajectory.TrajectoryUtil;
-import edu.wpi.first.wpilibj.util.Units;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
-import frc.robot.subsystems.Blinkin;
 import frc.robot.subsystems.DriveTrain;
+import frc.robot.subsystems.Trajectories;
 
 public class JsonTrajectory extends CommandBase {
   private DriveTrain driveTrain;
-  private Blinkin ledController;
   private Trajectory trajectory;
   private RamseteCommand command;
-  //private TrajectoryConfig config;
-  private String trajectoryPathname;
+  private SlalomIsSpecial slalomCommand;
+  private Trajectories paths;
+  private String currPath;
 
   /** Creates a new JsonTrajectory. */
-  public JsonTrajectory(DriveTrain drive, Blinkin leds) {
+  public JsonTrajectory(DriveTrain drive, Trajectories trajectories) {
     // Use addRequirements() here to declare subsystem dependencies.
     driveTrain = drive;
-    ledController = leds;
-    trajectoryPathname = kLinePath; // CHANGE HERE TO CHANGE WHAT PATH IS RUN
+    currPath = kCurrentTraj;
+    paths = trajectories;
     addRequirements(driveTrain);
   }
 
@@ -51,25 +40,26 @@ public class JsonTrajectory extends CommandBase {
     // Make sure odometry is reset
     driveTrain.resetOdometry(new Pose2d(0.0, 0.0, new Rotation2d(0)));
 
-    // Attempt to open the filepath for the trajectory
-    try {
-      Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryPathname);
-      trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
-    } catch (IOException ex) {
-      DriverStation.reportError("Unable to open trajectory: " + trajectoryPathname, ex.getStackTrace());
+    // Attempt to set proper trajectory
+    if(currPath.equals("Bounce")) {
+      trajectory = paths.getBouncePath();
     }
-    // TrajectoryConfig config = new TrajectoryConfig(kVelocityMax, kAccelerationMax);
-    // trajectory = TrajectoryGenerator.generateTrajectory(
-    //     new Pose2d(0, 0, new Rotation2d(0)),
-    //     List.of(
-    //     ),
-    //     new Pose2d(Units.feetToMeters(10), Units.feetToMeters(0), new Rotation2d(0)),
-    //     // Pass config
-    //     config
-    //   );
+    if(currPath.equals("Barrel")) {
+      trajectory = paths.getBarrelRacingPath();
+    }
+    if(currPath.equals("Test")) {
+      trajectory = paths.getTestPath();
+    }
+    if(currPath.equals("Slalom")) {
+      trajectory = paths.getSlalomPath();
+    }
+    if(currPath.equals("SlalomIsSpecial")) {
+      slalomCommand = new SlalomIsSpecial(driveTrain, paths);
+      slalomCommand.schedule();
+    }
 
     // If successful, follow the trajectory.
-    if(trajectory != null) {
+    if(trajectory != null && slalomCommand == null) {
       // ADDED 3/23/21
       // Translate Trajectory to Robot Pos
       Transform2d transform = driveTrain.getPose().minus(trajectory.getInitialPose());
@@ -92,7 +82,6 @@ public class JsonTrajectory extends CommandBase {
     }
     else {
       System.out.println("WARNING! No path found.");
-      ledController.setWhite();
     }
   }
 
@@ -108,6 +97,10 @@ public class JsonTrajectory extends CommandBase {
   @Override
   public boolean isFinished() {
     //return false;
-    return command.isFinished();
+    if(slalomCommand == null) {
+      return command.isFinished();
+    } else {
+      return slalomCommand.isFinished();
+    }
   }
 }

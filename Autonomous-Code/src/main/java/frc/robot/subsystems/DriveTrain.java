@@ -33,6 +33,11 @@ public class DriveTrain extends SubsystemBase {
   private SimpleMotorFeedforward feedForward;
   private SpeedControllerGroup leftMotorGroup, rightMotorGroup;
   private WPI_TalonFX frontLeftMotor, frontRightMotor, backLeftMotor, backRightMotor;
+  private boolean isLeftVoltageInverted;
+  private boolean isRightVoltageInverted;
+  private boolean leftEncoderReversed;
+  private boolean rightEncoderReversed;
+  private boolean gyroReversed;
   
   public DriveTrain() {
     frontLeftMotor = new WPI_TalonFX(kFrontLeftMotorID);
@@ -70,6 +75,12 @@ public class DriveTrain extends SubsystemBase {
     feedForward = new SimpleMotorFeedforward(kS, kV, kA);
     leftPIDController = new PIDController(kP, kI, kD);
     rightPIDController = new PIDController(kP, kI, kD);
+
+    isLeftVoltageInverted = kIsLeftVoltageInverted;
+    isRightVoltageInverted = kIsRightVoltageInverted;
+    leftEncoderReversed = kLeftEncoderReversed;
+    rightEncoderReversed = kRightEncoderReversed;
+    gyroReversed = kGyroReversed;
   }
 
   @Override
@@ -91,8 +102,8 @@ public class DriveTrain extends SubsystemBase {
   }
 
   public void setTankDriveVolts(double leftVolts, double rightVolts) {
-    leftMotorGroup.setVoltage((kIsLeftVoltageInverted) ? -leftVolts : leftVolts);
-    rightMotorGroup.setVoltage((kIsRightVoltageInverted) ? -rightVolts : rightVolts);
+    leftMotorGroup.setVoltage((isLeftVoltageInverted) ? -leftVolts : leftVolts);
+    rightMotorGroup.setVoltage((isRightVoltageInverted) ? -rightVolts : rightVolts);
     driveTrain.feed();
   }
 
@@ -122,7 +133,7 @@ public class DriveTrain extends SubsystemBase {
   }
 
   public Rotation2d getHeading() {
-    return Rotation2d.fromDegrees((kGyroReversed) ? -gyro.getAngle() : gyro.getAngle());
+    return Rotation2d.fromDegrees((gyroReversed) ? -gyro.getAngle() : gyro.getAngle());
   }
 
   public double getLeftWheelDistance() {
@@ -136,19 +147,19 @@ public class DriveTrain extends SubsystemBase {
   }
 
   public double getLeftEncoderPosition() {
-    return (kLeftEncoderReversed) ? -frontLeftMotor.getSelectedSensorPosition() : frontLeftMotor.getSelectedSensorPosition();
+    return (leftEncoderReversed) ? -frontLeftMotor.getSelectedSensorPosition() : frontLeftMotor.getSelectedSensorPosition();
   }
 
   public double getRightEncoderPosition() {
-    return (kRightEncoderReversed) ? -frontRightMotor.getSelectedSensorPosition() : frontRightMotor.getSelectedSensorPosition();
+    return (rightEncoderReversed) ? -frontRightMotor.getSelectedSensorPosition() : frontRightMotor.getSelectedSensorPosition();
   }
 
   public double getLeftEncoderVelocity() {
-    return (kLeftEncoderReversed) ? -frontLeftMotor.getSelectedSensorVelocity() : frontLeftMotor.getSelectedSensorVelocity();
+    return (leftEncoderReversed) ? -frontLeftMotor.getSelectedSensorVelocity() : frontLeftMotor.getSelectedSensorVelocity();
   }
 
   public double getRightEncoderVelocity() {
-    return (kRightEncoderReversed) ? -frontRightMotor.getSelectedSensorVelocity() : frontRightMotor.getSelectedSensorVelocity();
+    return (rightEncoderReversed) ? -frontRightMotor.getSelectedSensorVelocity() : frontRightMotor.getSelectedSensorVelocity();
   }
 
   public DifferentialDriveKinematics getKinematics() {
@@ -176,7 +187,7 @@ public class DriveTrain extends SubsystemBase {
   }
 
   public double getGyroAngle() {
-    return kGyroReversed ? -gyro.getAngle() : gyro.getAngle();
+    return gyroReversed ? -gyro.getAngle() : gyro.getAngle();
   }
 
   // Reset Functions
@@ -196,35 +207,44 @@ public class DriveTrain extends SubsystemBase {
     gyro.reset();
   }
 
+  public void invertDriveTrain() {
+    isLeftVoltageInverted = !isLeftVoltageInverted;
+    isRightVoltageInverted = !isRightVoltageInverted;
+    leftEncoderReversed = !leftEncoderReversed;
+    rightEncoderReversed = !rightEncoderReversed;
+    gyroReversed = !gyroReversed;
+  }
+
+  // don't ever use this. Period.
   private void outputTelementary() {
     // note that odometry is in meters and such
-    double gyroAngle = (kGyroReversed) ? -gyro.getAngle() : gyro.getAngle();
-    double leftSideRotationsPerSecond = (double) getLeftEncoderVelocity() / kEncoderResolution / kGearRatio * 10;
-    double leftSidePhysicalVelocity = leftSideRotationsPerSecond * 2 * Math.PI * Units.inchesToMeters(kWheelRadius);
-    double leftSideDistanceTraversed = ((double) getLeftEncoderPosition()) / kEncoderResolution / kGearRatio * 2 * Math.PI * Units.inchesToMeters(kWheelRadius);
-    double rawLeftEncoderPosition = (kLeftEncoderReversed) ? -frontLeftMotor.getSelectedSensorPosition() : frontLeftMotor.getSelectedSensorPosition();
-    double rawLeftEncoderVelocity = (kLeftEncoderReversed) ? -frontLeftMotor.getSelectedSensorVelocity() : frontLeftMotor.getSelectedSensorVelocity();
-    double frontLeftMotorInputCurrent = frontLeftMotor.getSupplyCurrent();
-    double frontLeftMotorOutputCurrent = frontLeftMotor.getStatorCurrent();
-    double frontLeftMotorOutputVoltage = frontLeftMotor.getMotorOutputVoltage();
-    double frontLeftMotorOutputPercent = frontLeftMotor.getMotorOutputPercent();
-    double backLeftMotorInputCurrent = backLeftMotor.getSupplyCurrent();
-    double backLeftMotorOutputCurrent = backLeftMotor.getStatorCurrent();
-    double backLeftMotorOutputVoltage = backLeftMotor.getMotorOutputVoltage();
-    double backLeftMotorOutputPercent = backLeftMotor.getMotorOutputPercent();
-    double rightSideRotationsPerSecond = (double) getRightEncoderVelocity() / kEncoderResolution / kGearRatio * 10;
-    double rightSidePhysicalVelocity = rightSideRotationsPerSecond * 2 * Math.PI * Units.inchesToMeters(kWheelRadius);
-    double rightSideDistanceTraversed = ((double) getRightEncoderPosition()) / kEncoderResolution / kGearRatio * 2 * Math.PI * Units.inchesToMeters(kWheelRadius);
-    double rawRightEncoderPosition = (kRightEncoderReversed) ? -frontRightMotor.getSelectedSensorPosition() : frontRightMotor.getSelectedSensorPosition();
-    double rawRightEncoderVelocity = (kRightEncoderReversed) ? -frontRightMotor.getSelectedSensorVelocity() : frontRightMotor.getSelectedSensorVelocity();
-    double frontRightMotorInputCurrent = frontRightMotor.getSupplyCurrent();
-    double frontRightMotorOutputCurrent = frontRightMotor.getStatorCurrent();
-    double frontRightMotorOutputVoltage = frontRightMotor.getMotorOutputVoltage();
-    double frontRightMotorOutputPercent = frontRightMotor.getMotorOutputPercent();
-    double backRightMotorInputCurrent = backRightMotor.getSupplyCurrent();
-    double backRightMotorOutputCurrent = backRightMotor.getStatorCurrent();
-    double backRightMotorOutputVoltage = backRightMotor.getMotorOutputVoltage();
-    double backRightMotorOutputPercent = backRightMotor.getMotorOutputPercent();
+    // double gyroAngle = (gyroReversed) ? -gyro.getAngle() : gyro.getAngle();
+    // double leftSideRotationsPerSecond = (double) getLeftEncoderVelocity() / kEncoderResolution / kGearRatio * 10;
+    // double leftSidePhysicalVelocity = leftSideRotationsPerSecond * 2 * Math.PI * Units.inchesToMeters(kWheelRadius);
+    // double leftSideDistanceTraversed = ((double) getLeftEncoderPosition()) / kEncoderResolution / kGearRatio * 2 * Math.PI * Units.inchesToMeters(kWheelRadius);
+    // double rawLeftEncoderPosition = (leftEncoderReversed) ? -frontLeftMotor.getSelectedSensorPosition() : frontLeftMotor.getSelectedSensorPosition();
+    // double rawLeftEncoderVelocity = (leftEncoderReversed) ? -frontLeftMotor.getSelectedSensorVelocity() : frontLeftMotor.getSelectedSensorVelocity();
+    // double frontLeftMotorInputCurrent = frontLeftMotor.getSupplyCurrent();
+    // double frontLeftMotorOutputCurrent = frontLeftMotor.getStatorCurrent();
+    // double frontLeftMotorOutputVoltage = frontLeftMotor.getMotorOutputVoltage();
+    // double frontLeftMotorOutputPercent = frontLeftMotor.getMotorOutputPercent();
+    // double backLeftMotorInputCurrent = backLeftMotor.getSupplyCurrent();
+    // double backLeftMotorOutputCurrent = backLeftMotor.getStatorCurrent();
+    // double backLeftMotorOutputVoltage = backLeftMotor.getMotorOutputVoltage();
+    // double backLeftMotorOutputPercent = backLeftMotor.getMotorOutputPercent();
+    // double rightSideRotationsPerSecond = (double) getRightEncoderVelocity() / kEncoderResolution / kGearRatio * 10;
+    // double rightSidePhysicalVelocity = rightSideRotationsPerSecond * 2 * Math.PI * Units.inchesToMeters(kWheelRadius);
+    // double rightSideDistanceTraversed = ((double) getRightEncoderPosition()) / kEncoderResolution / kGearRatio * 2 * Math.PI * Units.inchesToMeters(kWheelRadius);
+    // double rawRightEncoderPosition = (rightEncoderReversed) ? -frontRightMotor.getSelectedSensorPosition() : frontRightMotor.getSelectedSensorPosition();
+    // double rawRightEncoderVelocity = (rightEncoderReversed) ? -frontRightMotor.getSelectedSensorVelocity() : frontRightMotor.getSelectedSensorVelocity();
+    // double frontRightMotorInputCurrent = frontRightMotor.getSupplyCurrent();
+    // double frontRightMotorOutputCurrent = frontRightMotor.getStatorCurrent();
+    // double frontRightMotorOutputVoltage = frontRightMotor.getMotorOutputVoltage();
+    // double frontRightMotorOutputPercent = frontRightMotor.getMotorOutputPercent();
+    // double backRightMotorInputCurrent = backRightMotor.getSupplyCurrent();
+    // double backRightMotorOutputCurrent = backRightMotor.getStatorCurrent();
+    // double backRightMotorOutputVoltage = backRightMotor.getMotorOutputVoltage();
+    // double backRightMotorOutputPercent = backRightMotor.getMotorOutputPercent();
 
     // Verbose logging (the WARNING! allows for info to be seen in driver station)
     // System.out.println("WARNING! ====BEGIN DRIVETRAIN LOG====");

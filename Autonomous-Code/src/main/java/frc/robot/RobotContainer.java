@@ -4,14 +4,17 @@
 
 package frc.robot;
 
+import static frc.robot.Constants.Challenge.*;
+
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.commands.DeterminePath;
 import frc.robot.commands.JsonTrajectory;
-import frc.robot.subsystems.Blinkin;
 import frc.robot.subsystems.DriveTrain;
+import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Limelight;
+import frc.robot.subsystems.Trajectories;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -25,15 +28,24 @@ public class RobotContainer {
   private Limelight limelight;
   private DeterminePath determinePath;
   private JsonTrajectory jsonTrajectory;
-  private Blinkin blinkin;
+  private Trajectories trajectories;
+  private Intake pickUp;
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+    // Subsystems
     driveTrain = new DriveTrain();
     limelight = new Limelight();
-    blinkin = new Blinkin();
+    pickUp = new Intake();
 
-    determinePath = new DeterminePath(driveTrain, limelight, blinkin);
-    jsonTrajectory = new JsonTrajectory(driveTrain, blinkin);
+    // Needed for trajectory generation
+    trajectories = new Trajectories(driveTrain);
+
+    // Commands
+    determinePath = new DeterminePath(driveTrain, pickUp, limelight, trajectories);
+    jsonTrajectory = new JsonTrajectory(driveTrain, trajectories);
+    
+    // Lol we don't use this
     configureButtonBindings(); // Configure the button bindings
   }
 
@@ -51,7 +63,12 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    //return determinePath;
-    return jsonTrajectory;
+    if(kCurrChallenge.equals("AutoNav")) {
+      return jsonTrajectory;
+    }
+    if(kCurrChallenge.equals("GSearch")) {
+      return determinePath;
+    }
+    return null; // Default if something invalid is passed, will crash the robot code.
   }
 }

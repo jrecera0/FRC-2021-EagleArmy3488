@@ -19,9 +19,8 @@ import frc.robot.subsystems.DriveTrain;
 public class Robot extends TimedRobot {
   private RobotContainer robotContainer;
   private Command autonomousCommand;
-  
-  private DriveTrain dt = new DriveTrain(); // DELETE ME
-  private XboxController ct = new XboxController(0); // DELETE ME
+  private DriveTrain driveTrain = new DriveTrain(); // DELETE ME
+  private XboxController xbox = new XboxController(0); // DELETE ME
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -86,7 +85,7 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    dt.arcadeDrive(-ct.getRawAxis(1), ct.getRawAxis(4)); // DELETE ME
+    driveTrain.arcadeDrive(-xbox.getRawAxis(1), xbox.getRawAxis(4)); // DELETE ME
     // dt.tankDrive(-ct.getRawAxis(1), -ct.getRawAxis(5) );
   }
 
