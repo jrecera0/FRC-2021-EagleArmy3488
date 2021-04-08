@@ -4,11 +4,17 @@
 
 package frc.robot;
 
+import static frc.robot.Constants.Challenge.*;
+
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
-import frc.robot.commands.ExampleCommand;
-import frc.robot.subsystems.ExampleSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.commands.DeterminePath;
+import frc.robot.commands.JsonTrajectory;
+import frc.robot.subsystems.DriveTrain;
+import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Limelight;
+import frc.robot.subsystems.Trajectories;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -16,16 +22,31 @@ import edu.wpi.first.wpilibj2.command.Command;
  * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
  * subsystems, commands, and button mappings) should be declared here.
  */
-public class RobotContainer {
+public class RobotContainer { 
   // The robot's subsystems and commands are defined here...
-  private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
-
-  private final ExampleCommand m_autoCommand = new ExampleCommand(m_exampleSubsystem);
+  private DriveTrain driveTrain;
+  private Limelight limelight;
+  private DeterminePath determinePath;
+  private JsonTrajectory jsonTrajectory;
+  private Trajectories trajectories;
+  private Intake pickUp;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    // Configure the button bindings
-    configureButtonBindings();
+    // Subsystems
+    driveTrain = new DriveTrain();
+    limelight = new Limelight();
+    pickUp = new Intake();
+
+    // Needed for trajectory generation
+    trajectories = new Trajectories(driveTrain);
+
+    // Commands
+    determinePath = new DeterminePath(driveTrain, pickUp, limelight, trajectories);
+    jsonTrajectory = new JsonTrajectory(driveTrain, trajectories);
+    
+    // Lol we don't use this
+    configureButtonBindings(); // Configure the button bindings
   }
 
   /**
@@ -42,7 +63,12 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    // An ExampleCommand will run in autonomous
-    return m_autoCommand;
+    if(kCurrChallenge.equals("AutoNav")) {
+      return jsonTrajectory;
+    }
+    if(kCurrChallenge.equals("GSearch")) {
+      return determinePath;
+    }
+    return null; // Default if something invalid is passed, will crash the robot code.
   }
 }
