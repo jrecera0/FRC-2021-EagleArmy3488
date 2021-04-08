@@ -4,25 +4,18 @@
 
 package frc.robot;
 
-import com.ctre.phoenix.motorcontrol.VictorSPXSimCollection;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+import static frc.robot.Constants.Challenge.*;
+
 import com.kauailabs.navx.frc.AHRS;
 
-import edu.wpi.first.hal.SimDouble;
-import edu.wpi.first.hal.simulation.SimDeviceDataJNI;
-import edu.wpi.first.wpilibj.AnalogGyro;
-import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj.SpeedControllerGroup;
-import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
-import edu.wpi.first.wpilibj.simulation.EncoderSim;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.system.plant.DCMotor;
-import edu.wpi.first.wpilibj.util.Units;
-import edu.wpi.first.wpiutil.math.VecBuilder;
 import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.TimedRobot;
+
+import frc.robot.subsystems.Controller;
+import frc.robot.subsystems.DriveTrain;
+import frc.robot.subsystems.Indexer;
+import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Shooter;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -32,15 +25,60 @@ import edu.wpi.first.wpilibj.SPI;
  */
 public class Robot extends TimedRobot {
   Indexer indexer;
-  XboxController xbox;
+  Intake intake;
+  Shooter shooter;
+  DriveTrain driveTrain;
+  Controller xbox;
+  AHRS navx;
+
+  boolean usingTriggerControls;
+  double desiredAngle;
+  boolean compensating;
+  double manualSpeed;
+  double increment;
+
+  public void gyroCompensation() {
+    if((xbox.getLeftTrigger() >= 0.5)) {
+      compensating = true;
+    } else {
+      desiredAngle = navx.getAngle();
+      compensating = false;
+    }
+  }
+
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
    */
   @Override
   public void robotInit() {
-    indexer = new Indexer(false, false, false);
-    xbox = new XboxController(0);
+    indexer = new Indexer();
+    xbox = new Controller();
+    intake = new Intake();
+    driveTrain = new DriveTrain();
+    shooter = new Shooter();
+    navx = new AHRS(SPI.Port.kMXP);
+    usingTriggerControls = false;
+    compensating = false;
+    desiredAngle = 0.0;
+    manualSpeed = -0.38;
+    increment = 0.1;
+  }
+  
+  public void drive()
+  {
+    if(!compensating) {
+      // leftPower = (frontLeft.getMotorOutputPercent() + backLeft.getMotorOutputPercent()) / 2.0;
+      // rightPower = (frontRight.getMotorOutputPercent() + backRight.getMotorOutputPercent()) / 2.0;
+      driveTrain.arcadeDrive(-xbox.getLeftStickY(), xbox.getRightStickX()); 
+    } else {
+      if(navx.getAngle() <= desiredAngle) {
+        driveTrain.arcadeDrive(-xbox.getLeftStickY(), xbox.getRightStickX() + increment);
+      }
+      else if(navx.getAngle() >= desiredAngle) {
+        driveTrain.arcadeDrive(-xbox.getLeftStickY(), xbox.getRightStickX() - increment);
+      }
+    }
   }
 
   /**
@@ -77,9 +115,68 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    if(xbox.getXButton()) {
-      indexer.loadNewBall();
+    if(kCurrChallenge.equals("ZoneShoot")) {
+      // shooty stuff
+      if(xbox.getBButton()) {
+        shooter.setRedZone();
+      }
+      if(xbox.getAButton()) {
+        shooter.setGreenZone();
+      }
+      if(xbox.getXButton()) {
+        shooter.setBlueZone();
+      }
+      if(xbox.getYButton()) {
+        shooter.setYellowZone();
+      }
+      if(xbox.getRightBumper()) {
+        shooter.shoot();
+        if(xbox.getLeftBumper() ) {
+          indexer.index();
+        } else if (xbox.getRightTrigger() >= 0.5) {
+          indexer.moveToShooter();
+        } else {
+          indexer.stop();
+        }
+      } else {
+        shooter.stop();
+        if(xbox.getLeftBumper()) {
+          indexer.index();
+        } else {
+          indexer.stop();
+        }
+      }
     }
+    else if(kCurrChallenge.equals("SpeedShoot")) {
+      if(xbox.getRightBumper()) {
+        shooter.setSpeedManual(manualSpeed);
+        if(xbox.getLeftBumper() ) {
+          indexer.index();
+        } else if (xbox.getRightTrigger() >= 0.5) {
+          indexer.moveToShooter();
+        } else {
+          indexer.stop();
+        }
+      } else {
+        shooter.stop();
+        if(xbox.getLeftBumper()) {
+          indexer.index();
+        } else {
+          indexer.stop();
+        }
+      }
+      if(xbox.getYButton()) {
+        manualSpeed-=0.01;
+      }
+      if(xbox.getAButton()) {
+        manualSpeed+=0.01;
+      }
+      if (xbox.getXButton() ){
+        System.out.println("WARNING! manualSpeed: " + manualSpeed);
+      }
+    }
+    drive();
+    gyroCompensation();
   }
 
   /** This function is called once when the robot is disabled. */

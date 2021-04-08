@@ -17,7 +17,7 @@ public final class Constants {
         // Valid options:
         // AutoNav - "AutoNav"
         // Galatic Search - "GSearch"
-        public static final String kCurrChallenge = "AutoNav";
+        public static final String kCurrChallenge = "GSearch";
     }
 
     public class TrajectoryPathnames {
@@ -35,24 +35,25 @@ public final class Constants {
 
         // Just so we can select a path to run
         // Modes: "Bounce", "Barrel", "Slalom", "Test", "SlalomIsSpecial"
-        public static final String kCurrentTraj = "Bounce";
+        // Bounce is Slalom, Slalom is Bounce
+        public static final String kCurrentTraj = "Test";
     }
 
     public class FieldPositioning {
         // Other
-        public static final double kInterval = 2;
+        public static final double kInterval = 5;
         // Path A RED
-        public static final double aRed_tx = 58.60;
-        public static final double aRed_ty = -49.30;
+        public static final double aRed_tx = 31.5;
+        public static final double aRed_ty = -41.0;
         // Path A BLUE
-        public static final double aBlue_tx = 47.65;
-        public static final double aBlue_ty = -45.5;
+        public static final double aBlue_tx = 52.9;
+        public static final double aBlue_ty = -33.5;
         // Path B RED
-        public static final double bRed_tx = 38.21;
-        public static final double bRed_ty = -52.15;
+        public static final double bRed_tx = -10.8;
+        public static final double bRed_ty = -44.0;
         // Path B Blue
-        public static final double bBlue_tx = 35.75;
-        public static final double bBlue_ty = -44.50;
+        public static final double bBlue_tx = 43.25;
+        public static final double bBlue_ty = -33.50;
     }
 
     public class DriveConstants {
@@ -69,35 +70,30 @@ public final class Constants {
         public static final boolean kIsRightVoltageInverted = true; // OLD true
         public static final boolean kLeftEncoderReversed = false; // OLD false
         public static final boolean kRightEncoderReversed = true; // OLD true
-        public static final boolean kGyroReversed = false; // OLD false
+        public static final boolean kGyroReversed = true; // OLD false
 
 
         // Physical Robot Properties
-        public static final double kTrackWidth = 24.3125;
-        public static final double kWheelRadius = 3;
+        public static final double kTrackWidth = 22.875;
+        public static final double kWheelRadius = 2.9;
         public static final double kGearRatio = 10.71;
         public static final double kEncoderResolution = 2048;
 
         // Characterization Constants (ACTUAL)
-        // public static final double kP = 0.0109;
-        // public static final double kI = 0.0;
-        // public static final double kD = 0.0;
-        // public static final double kS = 0.226;
-        // public static final double kV = 1.95;
-        // public static final double kA = 0.299;
-        // TESTING
-        public static final double kP = 2.5;
+        public static final double kP = 2.42;
         public static final double kI = 0.0;
         public static final double kD = 0.0;
-        public static final double kS = 0.68;
-        public static final double kV = 1.95;
-        public static final double kA = 0.242;
+        public static final double kS = 0.629;
+        public static final double kV = 2.42;
+        public static final double kA = 0.343;
         public static final double kRamseteB = 2;
         public static final double kRamseteZeta = 0.7;
 
         // Max Speeds
-        public static final double kVelocityMax = 2.5; // 2 //original: 1.8288; // 6ft/s
-        public static final double kAccelerationMax = 2.5; // 1.5 //original: 1.2192; // 4ft/s^2
+        public static final double kVelocityMax = 1.8288; // 2 //original: 1.8288; // 6ft/s
+        public static final double kAccelerationMax = 1.2192; // 1.5 //original: 1.2192; // 4ft/s^2
+        public static final double kSpecialVelocityMax = 5;
+        public static final double kSpecialAccelerationMax = 5;
         // Logging
         public static final boolean kLoggingEnabled = false; // do. not. set. true.
     }

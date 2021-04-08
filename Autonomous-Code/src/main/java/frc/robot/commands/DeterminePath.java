@@ -22,9 +22,12 @@ public class DeterminePath extends CommandBase {
   private Limelight limelight;
   private DriveTrain driveTrain;
   private Trajectory trajectory;
+  private Trajectory initTraj;
   private Trajectories paths;
   private RamseteCommand command;
+  private RamseteCommand initCommand;
   private Intake intake;
+  private boolean isInitDone;
 
   public DeterminePath(DriveTrain drive, Intake pickUp, Limelight fieldVision, Trajectories trajectories) {
     // Use addRequirements() here to declare subsystem dependencies.
@@ -32,6 +35,7 @@ public class DeterminePath extends CommandBase {
     intake = pickUp;
     limelight = fieldVision;
     paths = trajectories;
+    isInitDone = false;
     addRequirements(driveTrain, limelight);
   }
 
@@ -56,13 +60,27 @@ public class DeterminePath extends CommandBase {
       System.out.println("WARNING! Picked B_BLUE");
       trajectory = paths.getPathBBlue();
     }
+    
+    initTraj = paths.getTestPath();
 
     // If path found, run the path
     if(trajectory != null) {
       // Make sure odometry is reset
       driveTrain.resetOdometry(new Pose2d());
 
-      // Run the Ramsete Command to make the robot drive around
+      initCommand = new RamseteCommand(
+        initTraj,
+        driveTrain::getPose,
+        new RamseteController(kRamseteB, kRamseteZeta),
+        driveTrain.getSimpleMotorFeedForward(),
+        driveTrain.getKinematics(),
+        driveTrain::getDriveWheelSpeeds,
+        driveTrain.getLeftPIDController(),
+        driveTrain.getRightPIDController(),
+        driveTrain::setTankDriveVolts,
+        driveTrain
+      );
+      initCommand.schedule();
       command = new RamseteCommand(
         trajectory,
         driveTrain::getPose,
@@ -75,7 +93,6 @@ public class DeterminePath extends CommandBase {
         driveTrain::setTankDriveVolts,
         driveTrain
       );
-      command.schedule();
     } else {
       System.out.println("WARNING! No path found.");
     }
@@ -85,6 +102,14 @@ public class DeterminePath extends CommandBase {
   // TODO: Add polling system to determine path?
   @Override
   public void execute() {
+    if(initCommand.isFinished() && !isInitDone) {
+      // Make sure odometry is reset
+      driveTrain.resetOdometry(new Pose2d());
+
+      // Run the Ramsete Command to make the robot drive around
+      command.schedule();
+      isInitDone = true;
+    }
     intake.pickUp();
   }
 
@@ -97,7 +122,6 @@ public class DeterminePath extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    // return false;
     return command.isFinished();
   }
   

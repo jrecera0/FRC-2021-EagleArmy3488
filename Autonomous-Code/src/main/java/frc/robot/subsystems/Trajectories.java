@@ -29,6 +29,7 @@ public class Trajectories {
     private Trajectory slalomPath;
     private Trajectory pathweaverTestPath; // In case we need to make a test path
     private TrajectoryConfig config;
+    private TrajectoryConfig specialConfig;
 
     // We don't talk about these.
     private Trajectory slalomPathSect1;
@@ -39,15 +40,16 @@ public class Trajectories {
     public Trajectories(DriveTrain robot) {
         // Setup the config for the galatic search paths
         config = new TrajectoryConfig(kVelocityMax, kAccelerationMax);
+        specialConfig = new TrajectoryConfig(kSpecialVelocityMax, kSpecialAccelerationMax);
+        specialConfig.setReversed(true);
         config.setKinematics(robot.getKinematics());
-
         // Trajectories
         pathARed = TrajectoryGenerator.generateTrajectory(
             new Pose2d(0, 0, new Rotation2d(0)),
             List.of(
-                new Translation2d(Units.feetToMeters(5), Units.feetToMeters(-2.5)),
-                new Translation2d(Units.feetToMeters(10), Units.feetToMeters(-5)),
-                new Translation2d(Units.feetToMeters(15), Units.feetToMeters(2.5))
+                new Translation2d(Units.feetToMeters(5), Units.feetToMeters(0)),
+                new Translation2d(Units.feetToMeters(10), Units.feetToMeters(-2.5)),
+                new Translation2d(Units.feetToMeters(12.5), Units.feetToMeters(5))
             ),
             new Pose2d(Units.feetToMeters(30), Units.feetToMeters(0), new Rotation2d(0)),
             // Pass config
@@ -57,9 +59,9 @@ public class Trajectories {
         pathBRed = TrajectoryGenerator.generateTrajectory(
             new Pose2d(0, 0, new Rotation2d(0)),
             List.of(
-                new Translation2d(Units.feetToMeters(5), Units.feetToMeters(0)),
-                new Translation2d(Units.feetToMeters(10), Units.feetToMeters(-5)),
-                new Translation2d(Units.feetToMeters(15), Units.feetToMeters(0))
+                new Translation2d(Units.feetToMeters(5), Units.feetToMeters(2.5)),
+                new Translation2d(Units.feetToMeters(11), Units.feetToMeters(-2.0)),
+                new Translation2d(Units.feetToMeters(15), Units.feetToMeters(2.5))
             ),
             new Pose2d(Units.feetToMeters(30), Units.feetToMeters(0), new Rotation2d(0)),
             // Pass config
@@ -69,11 +71,11 @@ public class Trajectories {
         pathABlue = TrajectoryGenerator.generateTrajectory(
             new Pose2d(0, 0, new Rotation2d(0)),
             List.of(
-                new Translation2d(Units.feetToMeters(12.5), Units.feetToMeters(-2.5)),
-                new Translation2d(Units.feetToMeters(15), Units.feetToMeters(5)),
-                new Translation2d(Units.feetToMeters(20.0), Units.feetToMeters(2.5))
+                new Translation2d(Units.feetToMeters(12.5), Units.feetToMeters(-4)),
+                new Translation2d(Units.feetToMeters(16), Units.feetToMeters(3.5)),
+                new Translation2d(Units.feetToMeters(20.0), Units.feetToMeters(1))
             ),
-            new Pose2d(Units.feetToMeters(30), Units.feetToMeters(2.5), new Rotation2d(0)),
+            new Pose2d(Units.feetToMeters(30), Units.feetToMeters(0), new Rotation2d(0)),
             // Pass config
             config
         );
@@ -81,9 +83,9 @@ public class Trajectories {
         pathBBlue = TrajectoryGenerator.generateTrajectory(
             new Pose2d(0, 0, new Rotation2d(0)),
             List.of(
-                new Translation2d(Units.feetToMeters(12.5), Units.feetToMeters(0)),
-                new Translation2d(Units.feetToMeters(17.5), Units.feetToMeters(5)),
-                new Translation2d(Units.feetToMeters(22.5), Units.feetToMeters(0))
+                new Translation2d(Units.feetToMeters(12.5), Units.feetToMeters(-2.5)),
+                new Translation2d(Units.feetToMeters(20.5), Units.feetToMeters(3.5)),
+                new Translation2d(Units.feetToMeters(24.5), Units.feetToMeters(-2.5))
             ),
             new Pose2d(Units.feetToMeters(30), Units.feetToMeters(0), new Rotation2d(0)),
             // Pass config
@@ -115,12 +117,19 @@ public class Trajectories {
         }
 
         // Test path in case of debug
-        try {
-            Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(kTestPath);
-            pathweaverTestPath = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
-        } catch (IOException ex) {
-            DriverStation.reportError("Unable to open trajectory: " + kTestPath, ex.getStackTrace());
-        }
+        // try {
+        //     Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(kTestPath);
+        //     pathweaverTestPath = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
+        // } catch (IOException ex) {
+        //     DriverStation.reportError("Unable to open trajectory: " + kTestPath, ex.getStackTrace());
+        // }
+        pathweaverTestPath = TrajectoryGenerator.generateTrajectory(
+            new Pose2d(0, 0, new Rotation2d(0)),
+            List.of(),
+            new Pose2d(Units.feetToMeters(-1), Units.feetToMeters(0), new Rotation2d(0)),
+            // Pass config
+            specialConfig
+        );
 
         // Slalom Sections
         try {

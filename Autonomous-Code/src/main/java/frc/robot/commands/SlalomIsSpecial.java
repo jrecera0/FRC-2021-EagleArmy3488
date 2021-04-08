@@ -84,6 +84,7 @@ public class SlalomIsSpecial extends CommandBase {
     if(section == 1 && commandSect1.isFinished()) {
       if(trajectory2 != null) {
         // Move robot trajectory to right pos
+        driveTrain.resetOdometry(new Pose2d(0.0, 0.0, new Rotation2d(0)));
         Transform2d transform = driveTrain.getPose().minus(trajectory2.getInitialPose());
         trajectory2 = trajectory2.transformBy(transform);
   
@@ -101,13 +102,14 @@ public class SlalomIsSpecial extends CommandBase {
           driveTrain
         );
       }
-      driveTrain.invertDriveTrain();
+      //driveTrain.invertDriveTrain();
       commandSect2.schedule();
       section++;
     }
     if(section == 2 && commandSect2.isFinished()) {
       if(trajectory3 != null) {
         // Move robot trajectory to right pos
+        driveTrain.resetOdometry(new Pose2d(0.0, 0.0, new Rotation2d(0)));
         Transform2d transform = driveTrain.getPose().minus(trajectory3.getInitialPose());
         trajectory3 = trajectory3.transformBy(transform);
   
@@ -125,13 +127,14 @@ public class SlalomIsSpecial extends CommandBase {
           driveTrain
         );
       }
-      driveTrain.invertDriveTrain();
+      //driveTrain.invertDriveTrain();
       commandSect3.schedule();
       section++;
     }
     if(section == 3 && commandSect3.isFinished()) {
       if(trajectory4 != null) {
         // Move robot trajectory to right pos
+        driveTrain.resetOdometry(new Pose2d(0.0, 0.0, new Rotation2d(0)));
         Transform2d transform = driveTrain.getPose().minus(trajectory4.getInitialPose());
         trajectory4 = trajectory4.transformBy(transform);
   
@@ -149,12 +152,12 @@ public class SlalomIsSpecial extends CommandBase {
           driveTrain
         );
       }
-      driveTrain.invertDriveTrain();
+      //driveTrain.invertDriveTrain();
       commandSect4.schedule();
       section++;
     }
     if(section == 4 && commandSect4.isFinished()) {
-      driveTrain.invertDriveTrain();
+      //driveTrain.invertDriveTrain();
       section = 0;
       System.out.println("WARNING! Completed Slalom.");
     }
